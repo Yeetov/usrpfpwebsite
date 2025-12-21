@@ -120,6 +120,8 @@
             border: none;
             position: relative;
             overflow: hidden;
+            line-height: 1; /* Fix vertical alignment */
+            height: 48px; /* Fixed height for consistency */
         }
 
         .btn-brand {
@@ -145,11 +147,16 @@
         }
 
         /* --- DROPDOWN --- */
-        .dropdown { position: relative; display: inline-block; }
+        .dropdown { 
+            position: relative; 
+            display: inline-flex; /* Fix alignment wrapper */
+            vertical-align: middle;
+        }
+        
         .dropdown-menu {
             display: none;
             position: absolute;
-            top: 120%; /* Spacing */
+            top: calc(100% + 12px); /* Spacing */
             left: 50%;
             transform: translateX(-50%);
             background: var(--bg-floating);
@@ -386,7 +393,8 @@
             margin-top: 1rem;
             flex-wrap: wrap;
             justify-content: center;
-            position: relative; /* For dropdown positioning context */
+            align-items: center; /* Ensure vertical alignment */
+            position: relative; 
         }
 
         /* STEPS GRID (Modern Cards) */
@@ -981,39 +989,56 @@
         const modData = {
             equicord: { 
                 logo: "https://equicord.org/assets/icons/equicord/icon-black.png",
-                desc: "Go to User Settings → Plugins → Search for 'UserPFP' → Toggle the switch to enable it.",
+                desc: "Equicord includes a plugin by default, go to Settings > Plugins > Search for UserPFP and turn the plugin on!",
                 code: null 
             },
             vencord: { 
                 logo: "https://equicord.org/assets/icons/vencord/icon.png",
-                desc: "Vencord requires the theme import. Copy the link below and paste it into Settings → Themes → Online Themes.",
+                desc: "Vencord only supports using the Theme for now, copy this link and paste it into Settings > Themes > Online Themes",
                 code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css" 
             },
             betterdiscord: { 
                 logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7008-a89e-30427975b652",
-                desc: "Open your Custom CSS or QuickCSS file in BetterDiscord settings and add this import line.",
+                title: "Web-Based / BetterDiscord",
+                desc: "To use UserPFP on any web-based client, simply add the following line to the top of your CustomCSS/QuickCSS file. Note: The CSS/Theme implementation is not recommended if other options are available.",
                 code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');" 
             },
             replugged: {
                 logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7006-8ac6-8512377d1f58",
-                desc: "Click the link below to install the plugin directly from the official Replugged store.",
+                desc: "You can install the plugin from the official plugin store",
                 link: "https://replugged.dev/store/dev.WolfPlugs.UserPFP"
             },
             aliucord: {
                 logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7004-844b-04dbc906256c",
-                desc: "Download the ZIP file and place it in your Aliucord plugins directory on your device.",
+                desc: "You can download the plugin file from this link",
                 link: "https://github.com/OmegaSunkey/awesomeplugins/raw/builds/UserPFP.zip"
             },
             vendetta: {
                 logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7003-8d7d-5e59de0a38d3",
-                desc: "Copy the link below and paste it into the Plugins tab in your Vendetta settings.",
+                desc: "Copy this link and add it to your plugins",
                 link: "https://revenge.nexpid.xyz/userpfp"
             },
              shelter: { 
                  logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7005-a865-2d3cc2f6b23c",
-                 desc: "Add this plugin repo link to Shelter settings to install.", 
+                 desc: "Add this link to your plugins", 
                  link: "https://spikehd.dev/shelter-plugins/userpfp/" 
             },
+            // Re-adding the missing ones sharing vendetta logic
+            bunny: {
+                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7002-af09-71777b39c12f",
+                desc: "All of these are based on the same system, simply copy this link and add it to your plugins",
+                link: "https://revenge.nexpid.xyz/userpfp"
+            },
+            revenge: {
+                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7000-94cc-2800ec57cd07",
+                desc: "All of these are based on the same system, simply copy this link and add it to your plugins",
+                link: "https://revenge.nexpid.xyz/userpfp"
+            },
+            kettu: {
+                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7001-ad48-2d37d308f96f",
+                desc: "All of these are based on the same system, simply copy this link and add it to your plugins",
+                link: "https://revenge.nexpid.xyz/userpfp"
+            }
         };
 
         const staffIds = [
@@ -1391,7 +1416,10 @@
             const content = document.getElementById('modalBody');
             
             // Set Header Info
-            document.getElementById('modalTitle').innerText = title.charAt(0).toUpperCase() + title.slice(1);
+            // Allow explicit title override from data, otherwise fallback to key format
+            const displayTitle = data.title || (title.charAt(0).toUpperCase() + title.slice(1));
+            
+            document.getElementById('modalTitle').innerText = displayTitle;
             document.getElementById('modalClientIcon').src = data.logo;
             
             content.innerHTML = '';
