@@ -149,8 +149,9 @@
         /* --- DROPDOWN --- */
         .dropdown { 
             position: relative; 
-            display: inline-flex; /* Fix alignment wrapper */
+            display: inline-flex; 
             vertical-align: middle;
+            width: 100%; /* Fill step card width */
         }
         
         .dropdown-menu {
@@ -160,8 +161,9 @@
             left: 50%;
             transform: translateX(-50%);
             background: var(--bg-floating);
-            width: 280px;
-            max-width: 90vw; /* Fit on screen */
+            width: 100%; /* Match parent width */
+            min-width: 240px;
+            max-width: 90vw;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             border: 1px solid rgba(255,255,255,0.08);
@@ -227,7 +229,7 @@
         }
 
         .dropdown-list-container {
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
             position: relative;
             z-index: 1;
@@ -251,7 +253,7 @@
             background: var(--modifier-hover); 
             color: #fff; 
             border-left-color: var(--brand);
-            padding-left: 19px; /* Subtle movement */
+            padding-left: 19px; 
         }
         .dropdown-item img { width: 24px; height: 24px; border-radius: 6px; object-fit: contain; }
 
@@ -393,12 +395,16 @@
             margin-top: 1rem;
             flex-wrap: wrap;
             justify-content: center;
-            align-items: center; /* Ensure vertical alignment */
+            align-items: center; 
             position: relative; 
         }
 
         /* STEPS GRID (Modern Cards) */
-        .steps-section { margin-bottom: 6rem; }
+        .steps-section { 
+            margin-bottom: 6rem; 
+            position: relative; 
+            z-index: 20; /* FIX: Ensure dropdown is above mod grid */
+        }
         
         .steps-grid {
             display: grid;
@@ -417,7 +423,7 @@
             gap: 1rem;
             transition: transform 0.2s, background-color 0.2s;
             position: relative;
-            overflow: hidden;
+            /* overflow: hidden; Removed to allow dropdown */
         }
 
         .step-card:hover {
@@ -651,7 +657,7 @@
         
         .badge img { width: 12px; height: 12px; }
 
-        /* --- MODAL IMPROVEMENTS --- */
+        /* --- MODAL WIZARD --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -670,7 +676,7 @@
 
         .modal-content {
             background: var(--bg-primary);
-            padding: 0; /* Removing padding to control sections */
+            padding: 0; 
             border-radius: var(--radius-lg);
             width: 100%;
             max-width: 550px;
@@ -681,31 +687,34 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            text-align: center; /* Center everything */
         }
 
         .modal-overlay.open .modal-content { transform: scale(1) translateY(0); }
 
+        /* Wizard Header */
         .modal-header-bg {
             background: var(--bg-deep);
             padding: 2rem;
             display: flex;
+            flex-direction: column; /* Stack logo and text */
             align-items: center;
-            gap: 1.5rem;
+            gap: 1rem;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             position: relative;
         }
 
         .modal-client-icon {
-            width: 64px; height: 64px;
+            width: 80px; height: 80px;
             background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 10px;
+            border-radius: 20px;
+            padding: 12px;
             object-fit: contain;
             box-shadow: var(--shadow-sm);
         }
 
-        .modal-title-wrap h3 { margin: 0; font-size: 1.5rem; color: var(--text-header); line-height: 1.2; }
-        .modal-title-wrap p { margin: 0.25rem 0 0; font-size: 0.9rem; color: var(--text-muted); }
+        .modal-title-wrap h3 { margin: 0; font-size: 1.75rem; color: var(--text-header); }
+        .modal-title-wrap p { margin: 0.25rem 0 0; font-size: 1rem; color: var(--text-muted); }
 
         .close-modal {
             position: absolute;
@@ -723,56 +732,41 @@
         }
         .close-modal:hover { background: var(--bg-modifier-hover); color: var(--text-header); }
 
+        /* Wizard Body */
         .modal-body {
             padding: 2rem;
-        }
-
-        /* Step styling */
-        .install-step {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px; /* Avoid layout shifts */
         }
-        .install-step-num {
-            background: var(--brand);
-            color: #fff;
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-            margin-top: 2px;
+
+        .wizard-step {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            animation: fadeIn 0.3s ease;
+            width: 100%;
         }
-        .install-step-text {
+        .wizard-step.active { display: flex; }
+
+        .wizard-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
             color: var(--text-normal);
-            font-size: 1rem;
-            line-height: 1.5;
+            max-width: 400px;
         }
-
-        /* Modal Content Animations */
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .modal-body > * {
-            opacity: 0; /* Start hidden */
-            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        /* Stagger the animations for a pleasing waterfall effect */
-        .modal-body > *:nth-child(1) { animation-delay: 0.1s; }
-        .modal-body > *:nth-child(2) { animation-delay: 0.25s; }
-        .modal-body > *:nth-child(3) { animation-delay: 0.4s; }
 
         /* Code Editor Look */
         .code-window {
-            background: #1e1f22; /* VS Code-ish bg */
+            background: #1e1f22; 
             border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.05);
             overflow: hidden;
-            margin-top: 1rem;
+            width: 100%;
+            text-align: left;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
         .code-header {
@@ -788,12 +782,11 @@
             background: transparent; border: none; color: var(--brand); font-weight: 600; 
             font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px;
         }
-        .copy-code-btn:hover { color: #fff; }
         
         .code-content {
             padding: 16px;
             font-family: var(--font-code);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #d4d4d4;
             overflow-x: auto;
             white-space: pre-wrap;
@@ -801,18 +794,39 @@
         }
 
         .btn-link {
-            width: 100%;
-            text-align: center;
-            display: block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background: var(--bg-secondary);
-            padding: 16px;
+            padding: 14px 24px;
             border-radius: 8px;
-            margin-top: 1rem;
             font-weight: 600;
             color: var(--brand);
             border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s;
         }
-        .btn-link:hover { background: var(--modifier-hover); color: #fff; }
+        .btn-link:hover { background: var(--modifier-hover); color: #fff; transform: translateY(-2px); }
+
+        /* Wizard Nav Buttons */
+        .wizard-nav {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+            justify-content: center;
+        }
+        .btn-wizard {
+            padding: 10px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-prev { background: transparent; color: var(--text-muted); }
+        .btn-prev:hover { color: var(--text-normal); background: var(--modifier-hover); }
+        .btn-next { background: var(--brand); color: #fff; }
+        .btn-next:hover { background: var(--brand-hover); }
 
         /* FOOTER */
         .footer {
@@ -850,10 +864,10 @@
                 background: transparent; 
                 border: none; 
                 padding: 0; 
-                flex-wrap: wrap; /* Ensure links wrap on very small screens */
+                flex-wrap: wrap; 
             }
             .nav-cta { 
-                display: block; /* Force display on mobile */
+                display: block; 
                 width: 100%; 
                 text-align: center;
             }
@@ -899,14 +913,8 @@
                 UserPFP is a client modification that unlocks animated profile pictures and banners on Discord without Nitro, visible to all other users of the mod.
             </p>
             <div class="hero-buttons">
-                <!-- Dropdown Wrapper -->
-                <div class="dropdown">
-                    <button class="btn btn-brand" onclick="toggleDropdown(event)">Get Started</button>
-                    <div class="dropdown-menu" id="clientDropdown">
-                        <!-- Populated via JS -->
-                    </div>
-                </div>
-                <a href="#steps" class="btn btn-secondary">Installation Guide</a>
+                <a href="#steps" class="btn btn-brand">Get Started</a>
+                <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="btn btn-secondary">Join Server</a>
             </div>
         </section>
 
@@ -925,14 +933,20 @@
                 </div>
                 <div class="step-card">
                     <div class="step-num">03</div>
-                    <h3>Install Mod</h3>
-                    <p>Choose your client below and follow the instructions to enable the database connection.</p>
+                    <h3>Install</h3>
+                    <p>Select your preferred client to view specific installation instructions.</p>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary" style="width:100%; margin-top:1rem;" onclick="toggleDropdown(event)">Choose Client</button>
+                        <div class="dropdown-menu" id="clientDropdown">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section class="mod-section">
-            <h2>Select Your Client</h2>
+            <h2>Supported Clients</h2>
             <p style="margin-bottom: 2rem;">Click an icon to view installation instructions.</p>
             <div class="mod-grid" id="modGrid">
                 <!-- Javascript will populate this -->
@@ -971,7 +985,7 @@
                 <img id="modalClientIcon" class="modal-client-icon" src="" alt="Client">
                 <div class="modal-title-wrap">
                     <h3 id="modalTitle">Mod Name</h3>
-                    <p>Installation Instructions</p>
+                    <p>Installation Wizard</p>
                 </div>
                 <button class="close-modal" onclick="closeModal()">×</button>
             </div>
@@ -1023,7 +1037,6 @@
                  desc: "Add this link to your plugins", 
                  link: "https://spikehd.dev/shelter-plugins/userpfp/" 
             },
-            // Re-adding the missing ones sharing vendetta logic
             bunny: {
                 logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7002-af09-71777b39c12f",
                 desc: "All of these are based on the same system, simply copy this link and add it to your plugins",
@@ -1059,35 +1072,27 @@
             "258731845267619840": "https://i.imgur.com/2mitqtb.png"
         };
         
-        // State variables for new logic
+        // State
         const customPfps = {};
         let usrbgData = null;
+        let currentWizardStep = 0;
+        let wizardSteps = [];
 
         // --- CORE LOGIC ---
 
         function init() {
             renderMods();
-            renderDropdown(); // Init dropdown
+            renderDropdown();
             handleRoute();
             window.addEventListener('hashchange', handleRoute);
-            
-            // Only load BG animation on desktop to save mobile battery
             if(window.innerWidth > 768) loadBackgroundPfps();
-            
-            // Close modal on outside click
             document.getElementById('infoModal').addEventListener('click', (e) => {
                 if(e.target.id === 'infoModal') closeModal();
             });
-
-            // Close dropdown on outside click
             window.addEventListener('click', () => {
                 const menu = document.getElementById('clientDropdown');
-                if(menu && menu.classList.contains('show')) {
-                    menu.classList.remove('show');
-                }
+                if(menu && menu.classList.contains('show')) menu.classList.remove('show');
             });
-            
-            // 1. Handle legacy /website path (if this file is copied to /website/index.html)
             if (window.location.pathname.includes('/website')) {
                 const currentHash = window.location.hash || '#home';
                 window.location.replace('/' + currentHash);
@@ -1095,31 +1100,20 @@
         }
 
         function handleRoute() {
-            // Get hash or default to 'home'
             let viewName = window.location.hash.replace('#', '') || 'home';
-
-            // Valid routes check
-            if (!['home', 'staff'].includes(viewName)) {
-                viewName = 'home';
-            }
+            if (!['home', 'staff'].includes(viewName)) viewName = 'home';
             
-            // Scroll top
-            window.scrollTo(0,0);
+            // Smooth scroll for anchors, otherwise jump
+            if(viewName !== 'home') window.scrollTo(0,0);
 
-            // Toggle Nav Active State
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
                 if (link.getAttribute('href') === `#${viewName}`) link.classList.add('active');
             });
 
-            // Toggle Views
-            document.querySelectorAll('.view-container').forEach(view => {
-                view.classList.remove('active');
-            });
-            const activeView = document.getElementById(`${viewName}-view`);
-            if (activeView) activeView.classList.add('active');
+            document.querySelectorAll('.view-container').forEach(view => view.classList.remove('active'));
+            document.getElementById(`${viewName}-view`).classList.add('active');
 
-            // View-Specific Logic
             const bgContainer = document.getElementById('bgAnim');
             if(viewName === 'home') {
                 if(bgContainer) bgContainer.style.display = 'block';
@@ -1129,41 +1123,26 @@
             }
         }
 
-        // --- DATA FETCHERS (Logic from snippet) ---
-
+        // --- DATA FETCHERS ---
         async function fetchCustomPfps() {
             try {
-                // CHANGED: Fetches from the NEW repo (Yeetov/usrpfpwebsite) with fallback
                 let res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/import.css');
-                if (!res.ok) {
-                    console.warn("Failed to fetch CSS from new repo, falling back...");
-                    res = await fetch('https://raw.githubusercontent.com/UserPFP/UserPFP/main/import.css');
-                }
-                
-                if (!res.ok) throw new Error('Failed to fetch CSS from both sources');
+                if (!res.ok) res = await fetch('https://raw.githubusercontent.com/UserPFP/UserPFP/main/import.css');
+                if (!res.ok) throw new Error('Failed');
                 const css = await res.text();
-                
                 const regex = /src\^="https:\/\/cdn\.discordapp\.com\/avatars\/(\d+)\/".*?url\(([^)]+)\)/g;
                 let match;
                 while ((match = regex.exec(css)) !== null) {
-                    const id = match[1];
-                    const url = match[2].replace(/['"]/g, ''); 
-                    customPfps[id] = url;
+                    customPfps[match[1]] = match[2].replace(/['"]/g, ''); 
                 }
-            } catch (e) {
-                console.error("Error loading custom PFPs:", e);
-            }
+            } catch (e) { console.error(e); }
         }
 
         async function fetchUsrbg() {
             try {
                 const res = await fetch("https://usrbg.is-hardly.online/users");
-                if (res.ok) {
-                    usrbgData = await res.json();
-                }
-            } catch (e) {
-                console.error("Failed to fetch USRBG data", e);
-            }
+                if (res.ok) usrbgData = await res.json();
+            } catch (e) { console.error(e); }
         }
 
         function getUsrbgUrl(userId) {
@@ -1172,8 +1151,7 @@
             return `${endpoint}/${bucket}/${prefix}${userId}?${etag}`;
         }
 
-        // --- HOME LOGIC ---
-
+        // --- UI RENDERERS ---
         function renderMods() {
             const grid = document.getElementById('modGrid');
             Object.entries(modData).forEach(([key, data]) => {
@@ -1188,11 +1166,9 @@
             });
         }
 
-        // --- NEW DROPDOWN LOGIC ---
         function renderDropdown() {
             const menu = document.getElementById('clientDropdown');
             if(!menu) return;
-            
             menu.innerHTML = `
                 <div class="dropdown-header">Select Client</div>
                 <div class="dropdown-search-wrapper">
@@ -1200,22 +1176,14 @@
                 </div>
                 <div id="dropdownList" class="dropdown-list-container"></div>
             `;
-            
             const list = document.getElementById('dropdownList');
-            
             Object.entries(modData).forEach(([key, data]) => {
                 const item = document.createElement('div');
                 item.className = 'dropdown-item';
                 item.setAttribute('data-name', key); 
                 item.onclick = () => {
-                    // Close dropdown first
-                    const m = document.getElementById('clientDropdown');
-                    if(m) m.classList.remove('show');
-                    
-                    // Small delay for animation feel before opening modal
-                    setTimeout(() => {
-                        openModal(key, data);
-                    }, 200);
+                    document.getElementById('clientDropdown').classList.remove('show');
+                    setTimeout(() => openModal(key, data), 200);
                 };
                 item.innerHTML = `<img src="${data.logo}" alt="${key}"> ${key.charAt(0).toUpperCase() + key.slice(1)}`;
                 list.appendChild(item);
@@ -1223,17 +1191,9 @@
         }
 
         function filterDropdown() {
-            const input = document.getElementById('clientSearch');
-            const filter = input.value.toLowerCase();
-            const items = document.querySelectorAll('.dropdown-item');
-            
-            items.forEach(item => {
-                const text = item.getAttribute('data-name');
-                if (text.toLowerCase().includes(filter)) {
-                    item.style.display = "flex";
-                } else {
-                    item.style.display = "none";
-                }
+            const filter = document.getElementById('clientSearch').value.toLowerCase();
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.style.display = item.getAttribute('data-name').toLowerCase().includes(filter) ? "flex" : "none";
             });
         }
 
@@ -1241,87 +1201,29 @@
             if(e) e.stopPropagation();
             const menu = document.getElementById('clientDropdown');
             menu.classList.toggle('show');
-            // Focus input if showing
-            if(menu.classList.contains('show')) {
-                setTimeout(() => {
-                    const input = document.getElementById('clientSearch');
-                    if(input) input.focus();
-                }, 100);
-            }
+            if(menu.classList.contains('show')) setTimeout(() => document.getElementById('clientSearch').focus(), 100);
         }
 
-        async function loadBackgroundPfps() {
-            window.pfpsLoaded = true;
-            try {
-                const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
-                const data = await res.json();
-                
-                const urls = Object.values(data.avatars || {})
-                    .filter(u => !u.includes("profileBadges") && u.startsWith("http"))
-                    .sort(() => 0.5 - Math.random()) // Shuffle
-                    .slice(0, 40); // Take 40
-
-                const fill = (id, items) => {
-                    const el = document.getElementById(id);
-                    if(!el) return;
-                    // Double for loop
-                    [...items, ...items].forEach(url => {
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.className = 'bg-pfp';
-                        img.loading = "lazy";
-                        img.onerror = () => img.remove();
-                        el.appendChild(img);
-                    });
-                };
-                
-                fill('track1', urls.slice(0, 20));
-                fill('track2', urls.slice(20, 40));
-
-            } catch(e) { console.warn("BG Load Failed", e); }
-        }
-
-        // --- STAFF LOGIC (Refined for parallel loading) ---
-
+        // --- STAFF LOGIC ---
         async function loadStaff() {
             window.staffLoaded = true;
             const grid = document.getElementById('staffGrid');
             const loader = document.getElementById('staffLoader');
-            
-            grid.innerHTML = ''; // Clear current
+            grid.innerHTML = ''; 
             loader.style.display = 'block';
 
             try {
-                // 1. Fetch global assets
                 await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
-
                 const shuffled = staffIds.sort(() => 0.5 - Math.random());
-
-                // 2. Create an array of fetch promises
-                const userPromises = shuffled.map(id => 
-                    fetch(`https://lanyard.equicord.org/v1/users/${id}`)
-                        .then(res => res.json())
-                        .then(data => data.success ? { id, data: data.data } : null)
-                        .catch(err => null)
-                );
-
-                // 3. Wait for ALL to finish
-                const results = await Promise.all(userPromises);
-
-                // 4. Render all valid results at once
-                let allCardsHTML = '';
-                results.forEach(result => {
-                    if (result) {
-                        allCardsHTML += createStaffCard(result.data, result.id);
-                    }
-                });
+                const results = await Promise.all(shuffled.map(id => 
+                    fetch(`https://lanyard.equicord.org/v1/users/${id}`).then(r=>r.json()).then(d=>d.success?{id,data:d.data}:null).catch(()=>null)
+                ));
                 
-                // Hide loader and show content
+                let html = '';
+                results.forEach(r => { if(r) html += createStaffCard(r.data, r.id); });
                 loader.style.display = 'none';
-                grid.innerHTML = allCardsHTML;
-
+                grid.innerHTML = html;
             } catch(e) {
-                console.error("Critical staff load error", e);
                 loader.style.display = 'none';
                 grid.innerHTML = '<p style="color:var(--text-muted)">Unable to load staff members.</p>';
             }
@@ -1329,36 +1231,18 @@
 
         function createStaffCard(data, id) {
             const user = data.discord_user;
-            
-            // --- PRIORITY LOGIC START ---
-            // Avatar Priority: Custom CSS > Discord Avatar > Default
-            const avatar = customPfps[id] ? customPfps[id] : (user.avatar ? 
-                `https://cdn.discordapp.com/avatars/${id}/${user.avatar}.${user.avatar.startsWith('a_') ? 'gif' : 'webp'}?size=128` : 
-                'https://cdn.discordapp.com/embed/avatars/0.png');
-            
-            // Banner Priority: USRBG > Manual Map > Empty (fallback color)
-            let banner = getUsrbgUrl(id);
-            if (!banner) {
-                banner = manualBanners[id] || "";
-            }
-            // --- PRIORITY LOGIC END ---
-
+            const avatar = customPfps[id] || (user.avatar ? `https://cdn.discordapp.com/avatars/${id}/${user.avatar}.${user.avatar.startsWith('a_')?'gif':'webp'}?size=128` : 'https://cdn.discordapp.com/embed/avatars/0.png');
+            let banner = getUsrbgUrl(id) || manualBanners[id] || "";
             const bannerStyle = banner ? `background-image: url('${banner}')` : '';
             const statusMap = { online:'online', idle:'idle', dnd:'dnd', offline:'offline' };
-            const statusClass = statusMap[data.discord_status] || 'offline';
-
-            // Activity Logic
-            let activityHtml = '';
             
-            // Find a rich presence or custom status
-            // Filter out custom status (type 4) for Rich Presence check
+            let activityHtml = '';
             const rich = data.activities.find(a => a.type !== 4); 
             const custom = data.activities.find(a => a.type === 4); 
             
             if (rich) {
                 const iconId = rich.assets?.large_image;
                 const iconUrl = iconId ? (iconId.startsWith('mp:') ? `https://media.discordapp.net/${iconId.replace('mp:','')}` : `https://cdn.discordapp.com/app-assets/${rich.application_id}/${iconId}.png`) : null;
-                
                 activityHtml = `
                     <div class="activity-card">
                         <div class="activity-header">Playing</div>
@@ -1369,34 +1253,23 @@
                                 <div class="activity-subtitle">${rich.details || rich.state || ''}</div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             } else if (custom && custom.state) {
                  activityHtml = `
                     <div class="activity-card">
                         <div class="activity-header">Custom Status</div>
-                        <div class="activity-row">
-                             <div class="activity-info">
-                                <div class="activity-subtitle">${custom.emoji ? custom.emoji.name + ' ' : ''}${custom.state}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                        <div class="activity-row"><div class="activity-info"><div class="activity-subtitle">${custom.emoji ? custom.emoji.name+' ' : ''}${custom.state}</div></div></div>
+                    </div>`;
             }
 
-            // Return HTML String matching the MODERN CSS structure
             return `
                 <div class="profile-card">
                     <div class="profile-banner" style="${bannerStyle}"></div>
-                    <div class="badge-container">
-                        <div class="badge">Staff</div>
-                    </div>
+                    <div class="badge-container"><div class="badge">Staff</div></div>
                     <div class="profile-avatar-container">
                         <div class="profile-avatar">
                             <img src="${avatar}" alt="${user.username}">
-                            <div class="status-badge">
-                                <div class="status-dot ${statusClass}"></div>
-                            </div>
+                            <div class="status-badge"><div class="status-dot ${statusMap[data.discord_status]||'offline'}"></div></div>
                         </div>
                     </div>
                     <div class="profile-body">
@@ -1406,59 +1279,78 @@
                         </div>
                         ${activityHtml}
                     </div>
-                </div>
-            `;
+                </div>`;
         }
 
-        // --- MODAL LOGIC ---
+        // --- WIZARD LOGIC ---
         function openModal(title, data) {
             const modal = document.getElementById('infoModal');
-            const content = document.getElementById('modalBody');
-            
-            // Set Header Info
-            // Allow explicit title override from data, otherwise fallback to key format
             const displayTitle = data.title || (title.charAt(0).toUpperCase() + title.slice(1));
             
             document.getElementById('modalTitle').innerText = displayTitle;
             document.getElementById('modalClientIcon').src = data.logo;
             
-            content.innerHTML = '';
+            // Build Steps
+            wizardSteps = [];
             
-            // Create "Instruction Step" UI
-            content.innerHTML = `
-                <div class="install-step">
-                    <div class="install-step-num">1</div>
-                    <div class="install-step-text">${data.desc}</div>
+            // Step 1: Instruction
+            wizardSteps.push({
+                html: `<div class="wizard-text">${data.desc}</div>`
+            });
+
+            // Step 2: Action (if exists)
+            if(data.code) {
+                wizardSteps.push({
+                    html: `
+                        <div class="wizard-text">Copy the code below:</div>
+                        <div class="code-window">
+                            <div class="code-header">
+                                <span class="code-lang">CSS / LINK</span>
+                                <button class="copy-code-btn" onclick="copyCode(this, '${data.code}')"><span>COPY</span></button>
+                            </div>
+                            <div class="code-content">${data.code}</div>
+                        </div>
+                    `
+                });
+            } else if(data.link) {
+                wizardSteps.push({
+                    html: `
+                        <div class="wizard-text">Click below to install:</div>
+                        <a href="${data.link}" target="_blank" class="btn-link">Open Installation Link</a>
+                    `
+                });
+            }
+
+            // Start Wizard
+            currentWizardStep = 0;
+            renderStep();
+            modal.classList.add('open');
+        }
+
+        function renderStep() {
+            const container = document.getElementById('modalBody');
+            const step = wizardSteps[currentWizardStep];
+            const isLast = currentWizardStep === wizardSteps.length - 1;
+            const isFirst = currentWizardStep === 0;
+
+            let navHtml = `
+                <div class="wizard-nav">
+                    ${!isFirst ? `<button class="btn-wizard btn-prev" onclick="changeStep(-1)">Back</button>` : ''}
+                    <button class="btn-wizard btn-next" onclick="${isLast ? 'closeModal()' : 'changeStep(1)'}">${isLast ? 'Done' : 'Next'}</button>
                 </div>
             `;
 
-            if(data.code) {
-                // Code Editor Look
-                content.innerHTML += `
-                    <div class="install-step">
-                        <div class="install-step-num">2</div>
-                        <div class="install-step-text">Copy the code below:</div>
-                    </div>
-                    <div class="code-window">
-                        <div class="code-header">
-                            <span class="code-lang">CSS / LINK</span>
-                            <button class="copy-code-btn" onclick="copyCode(this, '${data.code}')">
-                                <span>COPY</span>
-                            </button>
-                        </div>
-                        <div class="code-content">${data.code}</div>
-                    </div>
-                `;
-            } else if (data.link) {
-                // Link Button Look
-                content.innerHTML += `
-                    <a href="${data.link}" target="_blank" class="btn-link">
-                        Open Installation Link
-                    </a>
-                `;
-            }
+            container.innerHTML = `
+                <div class="wizard-step active">
+                    ${step.html}
+                    ${navHtml}
+                </div>
+            `;
+        }
 
-            modal.classList.add('open');
+        function changeStep(dir) {
+            currentWizardStep += dir;
+            renderStep();
         }
 
         function closeModal() {
@@ -1471,14 +1363,29 @@
                 const original = span.innerText;
                 span.innerText = "COPIED!";
                 btn.style.color = "var(--text-positive)";
-                setTimeout(() => {
-                    span.innerText = original;
-                    btn.style.color = "";
-                }, 2000);
+                setTimeout(() => { span.innerText = original; btn.style.color = ""; }, 2000);
             });
         }
 
-        // Start App
+        // BG Logic (Moved here to allow init usage)
+        async function loadBackgroundPfps() {
+            try {
+                const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
+                const data = await res.json();
+                const urls = Object.values(data.avatars||{}).filter(u=>!u.includes("profileBadges")&&u.startsWith("http")).sort(()=>0.5-Math.random()).slice(0,40);
+                const fill = (id, items) => {
+                    const el = document.getElementById(id);
+                    if(!el) return;
+                    [...items,...items].forEach(url=>{
+                        const img=document.createElement('img');img.src=url;img.className='bg-pfp';img.loading='lazy';img.onerror=()=>img.remove();
+                        el.appendChild(img);
+                    });
+                };
+                fill('track1', urls.slice(0,20));
+                fill('track2', urls.slice(20,40));
+            } catch(e){}
+        }
+
         init();
     </script>
 </body>
