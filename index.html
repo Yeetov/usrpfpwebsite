@@ -53,6 +53,10 @@
             --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         * { box-sizing: border-box; }
         
         body {
@@ -122,6 +126,7 @@
             overflow: hidden;
             line-height: 1; /* Fix vertical alignment */
             height: 48px; /* Fixed height for consistency */
+            text-decoration: none;
         }
 
         .btn-brand {
@@ -907,10 +912,10 @@
     <main id="home-view" class="view-container active">
         <section class="hero-section">
             <div class="hero-title">
-                <h1>Unlock Animated<br><span>Profiles & Banners</span></h1>
+                <h1>Unlock Animated<br><span>Profile Pictures</span></h1>
             </div>
             <p class="hero-desc">
-                UserPFP is a client modification that unlocks animated profile pictures and banners on Discord without Nitro, visible to all other users of the mod.
+                UserPFP is a client modification that unlocks animated profile pictures on Discord without Nitro. It also supports API images and GIFs (such as random duck or cat images), visible to all other users of the mod.
             </p>
             <div class="hero-buttons">
                 <a href="#steps" class="btn btn-brand">Get Started</a>
@@ -935,8 +940,8 @@
                     <div class="step-num">03</div>
                     <h3>Install</h3>
                     <p>Select your preferred client to view specific installation instructions.</p>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary" style="width:100%; margin-top:1rem;" onclick="toggleDropdown(event)">Choose Client</button>
+                    <div class="dropdown" style="width: 100%; margin-top: auto;">
+                        <button class="btn btn-secondary" style="width:100%;" onclick="toggleDropdown(event)">Choose Client</button>
                         <div class="dropdown-menu" id="clientDropdown">
                             <!-- Populated by JS -->
                         </div>
@@ -1121,6 +1126,9 @@
                 if(bgContainer) bgContainer.style.display = 'none';
                 if(!window.staffLoaded) loadStaff();
             }
+            
+            // Scroll top instantly for view changes (ignore smooth scroll css)
+            if(viewName !== 'home') window.scrollTo({ top: 0, behavior: 'instant' });
         }
 
         // --- DATA FETCHERS ---
