@@ -3,61 +3,58 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>UserPFP</title>
-    <!-- Inter font is the closest free Google Font to Discord's 'gg sans' -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Uni+Sans:wght@700&display=swap" rel="stylesheet" />
-    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <meta name="theme-color" content="#22c55e">
+    <meta name="description" content="Unlock animated profile pictures on Discord client-side without Nitro.">
+    <title>UserPFP | Animated Profiles</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    
     <style>
+        /* --- CSS VARIABLES & RESET --- */
         :root {
-            /* Discord Modern Color Palette */
-            --bg-primary: #313338;
-            --bg-secondary: #2b2d31;
-            --bg-tertiary: #1e1f22;
-            --bg-modifier-hover: rgba(78, 80, 88, 0.3);
-            --bg-modifier-active: rgba(78, 80, 88, 0.6);
+            /* Modern Dark Theme Palette */
+            --bg-deep: #111214;         /* App Background */
+            --bg-primary: #313338;      /* Chat/Main Background */
+            --bg-secondary: #2b2d31;    /* Cards/Sidebar */
+            --bg-tertiary: #1e1f22;     /* Inputs/Nav */
+            --bg-floating: #18191c;     /* Modals/Dropdowns */
+            
+            --modifier-hover: rgba(255, 255, 255, 0.05);
+            --modifier-active: rgba(255, 255, 255, 0.1);
             
             --text-normal: #dbdee1;
             --text-muted: #949ba4;
             --text-header: #f2f3f5;
             --text-link: #00a8fc;
             
-            --brand: #5865F2;
-            --brand-hover: #4752c4;
+            /* Brand Colors */
+            --brand: #22c55e;
+            --brand-hover: #16a34a;
+            --brand-gradient: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
             
-            --green: #23a559;
-            --red: #fa777c;
-            --yellow: #f0b232;
-            --grey: #80848e;
-            
-            --font-primary: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            --font-display: 'Uni Sans', sans-serif;
-            
+            /* Status Colors */
+            --status-online: #23a559;
+            --status-idle: #f0b232;
+            --status-dnd: #f23f43;
+            --status-offline: #80848e;
+
+            --font-primary: 'Inter', 'gg sans', system-ui, sans-serif;
+            --font-code: 'Roboto Mono', monospace;
+
             --radius-md: 8px;
             --radius-lg: 16px;
-            --radius-round: 50%;
+            --radius-xl: 24px;
             
-            --shadow-low: 0 2px 10px 0 rgba(0,0,0,0.2);
-            --shadow-high: 0 8px 16px 0 rgba(0,0,0,0.24);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 8px 16px rgba(0,0,0,0.2);
+            --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
         }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-            background-color: var(--bg-secondary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: #1a1b1e;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background-color: var(--bg-secondary);
-        }
-
+        * { box-sizing: border-box; }
+        
         body {
             margin: 0;
             padding: 0;
@@ -69,714 +66,956 @@
             flex-direction: column;
             min-height: 100vh;
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* --- Animations --- */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); scale: 0.98; }
-            to { opacity: 1; transform: translateY(0); scale: 1; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; background-color: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background-color: var(--bg-secondary); border-radius: 5px; border: 2px solid var(--bg-deep); }
+        ::-webkit-scrollbar-track { background-color: var(--bg-deep); }
+
+        /* Typography */
+        h1, h2, h3, h4 { color: var(--text-header); margin: 0; }
+        
+        h1 {
+            font-weight: 800;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            letter-spacing: -0.03em;
+            line-height: 1.1;
         }
 
-        @keyframes scrollColumn {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
+        h2 {
+            font-weight: 700;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        a { text-decoration: none; color: inherit; transition: 0.2s; }
+        p { color: var(--text-muted); font-size: 1.125rem; line-height: 1.6; }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scrollColumn { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        
+        /* Dropdown Animation */
+        @keyframes dropdownEnter {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.95); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
         }
 
-        /* --- Navbar --- */
+        /* --- UI COMPONENTS --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 32px;
+            border-radius: 28px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-brand {
+            background: var(--brand);
+            color: #fff;
+            box-shadow: 0 8px 16px rgba(34, 197, 94, 0.2);
+        }
+        .btn-brand:hover { 
+            background: var(--brand-hover); 
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(34, 197, 94, 0.3);
+        }
+        .btn-brand:active { transform: translateY(0); }
+
+        .btn-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-header);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .btn-secondary:hover { 
+            background-color: var(--modifier-hover);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        /* --- DROPDOWN --- */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 120%; /* Spacing */
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-floating);
+            width: 280px;
+            max-width: 90vw; /* Fit on screen */
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.08);
+            z-index: 10000;
+            overflow: hidden;
+            flex-direction: column;
+            transform-origin: top center;
+        }
+        .dropdown-menu.show { 
+            display: flex; 
+            animation: dropdownEnter 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        
+        /* Arrow tip for dropdown */
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 12px;
+            height: 12px;
+            background: var(--bg-floating); /* Matches bg */
+            border-left: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            z-index: 0;
+        }
+        
+        .dropdown-header {
+            padding: 12px 16px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 1;
+        }
+
+        .dropdown-search-wrapper {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 1;
+            background: var(--bg-floating);
+        }
+
+        .dropdown-search {
+            width: 100%;
+            background: var(--bg-deep);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: var(--text-normal);
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .dropdown-search:focus {
+            border-color: var(--brand);
+        }
+
+        .dropdown-list-container {
+            max-height: 300px;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            background: var(--bg-floating);
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            color: var(--text-normal);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.15s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        .dropdown-item:hover { 
+            background: var(--modifier-hover); 
+            color: #fff; 
+            border-left-color: var(--brand);
+            padding-left: 19px; /* Subtle movement */
+        }
+        .dropdown-item img { width: 24px; height: 24px; border-radius: 6px; object-fit: contain; }
+
+        /* --- NAVBAR --- */
         .navbar {
-            background-color: var(--bg-tertiary);
-            padding: 0.8rem 1.5rem;
+            background-color: rgba(17, 18, 20, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.25rem 2rem;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: var(--shadow-low);
             display: flex;
             justify-content: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .nav-inner {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid #111;
+        }
+
+        .nav-brand {
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--text-header);
+            display: flex;
+            align-items: center;
+            gap: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-brand span { color: var(--brand); }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
         .nav-link {
             color: var(--text-muted);
-            text-decoration: none;
             font-weight: 600;
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-            cursor: pointer;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
         }
+        .nav-link:hover { color: var(--text-header); }
+        .nav-link.active { color: var(--brand); }
 
-        .nav-link:hover {
-            color: var(--text-header);
-            background-color: var(--bg-modifier-hover);
-        }
-
-        .nav-link.active {
-            color: #fff;
-            background-color: var(--bg-modifier-active);
-        }
-
-        /* --- Layout & Views --- */
-        .view-container {
-            flex: 1;
-            position: relative;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 3rem 1.5rem;
-            display: none;
-        }
-
-        .view-container.active {
-            display: block;
-            animation: fadeIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        h1, h2, h3 {
-            color: var(--text-header);
-            text-align: center;
-        }
-
-        h1 { 
-            font-family: var(--font-display);
-            font-size: 3.5rem; 
-            margin-bottom: 0.5rem; 
-            letter-spacing: 1px;
-            text-shadow: 0 4px 4px rgba(0,0,0,0.25);
-        }
-        
-        h2 { 
-            font-size: 1.5rem; 
-            margin-top: 3rem; 
-            margin-bottom: 1.5rem; 
-            font-weight: 700;
-        }
-
-        p { 
-            line-height: 1.6; 
-            text-align: center; 
-            max-width: 700px; 
-            margin: 0 auto 1.5rem; 
-            color: var(--text-muted);
-            font-size: 1.1rem;
-        }
-
-        /* --- Home View Components --- */
-        .hero {
-            position: relative;
-            z-index: 10;
-            padding-bottom: 4rem;
-        }
-
-        .steps-container {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            background: var(--bg-secondary);
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            max-width: 500px;
-            margin: 0 auto;
-            box-shadow: var(--shadow-low);
-            border: 1px solid rgba(0,0,0,0.2);
-        }
-
-        .step-link {
-            display: flex;
-            align-items: center;
-            color: var(--text-normal);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .step-link:hover {
-            background-color: var(--bg-modifier-hover);
-            color: var(--text-header);
-        }
-        
-        .step-link::before {
-            content: '#';
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            margin-right: 12px;
-            font-weight: 400;
-        }
-
-        /* Scrolling Background Columns */
-        .pfp-background {
+        /* --- BACKGROUND --- */
+        .bg-container {
             position: fixed;
-            top: 72px; /* Below navbar */
-            bottom: 0;
-            width: 120px;
-            overflow: hidden;
-            z-index: 0;
-            opacity: 0.15; /* Subtler */
+            top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+            z-index: 0;
+            overflow: hidden;
         }
 
-        .pfp-bg-left { left: 20px; }
-        .pfp-bg-right { right: 20px; }
+        .pfp-column {
+            position: absolute;
+            width: 80px;
+            top: -10px; bottom: -10px;
+            opacity: 0.08; 
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        }
+        
+        .col-left { left: 5%; }
+        .col-right { right: 5%; }
 
         .pfp-track {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            animation: scrollColumn 60s linear infinite;
+            gap: 16px;
+            animation: scrollColumn 80s linear infinite;
         }
 
-        .pfp-item {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-color: var(--bg-tertiary);
-            overflow: hidden;
-            margin: 0 auto;
-            box-shadow: var(--shadow-low);
-            border: 2px solid var(--bg-secondary);
-        }
-
-        .pfp-item img {
-            width: 100%;
-            height: 100%;
+        .bg-pfp {
+            width: 80px; height: 80px;
+            border-radius: 20px; /* Slight squircle for BG */
+            background: var(--bg-tertiary);
             object-fit: cover;
+            filter: grayscale(100%) contrast(1.2);
+            box-shadow: var(--shadow-sm);
         }
 
-        /* Mods Section */
+        /* --- MAIN VIEWS --- */
+        .view-container {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .view-container.active { display: block; animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* HOME HERO */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 6rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .hero-title h1 {
+            color: var(--text-header);
+        }
+
+        .hero-title span { 
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        
+        .hero-desc {
+            max-width: 640px;
+            margin: 0 auto;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: relative; /* For dropdown positioning context */
+        }
+
+        /* STEPS GRID (Modern Cards) */
+        .steps-section { margin-bottom: 6rem; }
+        
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform 0.2s, background-color 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            background-color: #2e3035;
+            border-color: rgba(255,255,255,0.08);
+        }
+
+        .step-num {
+            font-family: var(--font-code);
+            color: var(--brand);
+            font-size: 3rem;
+            font-weight: 700;
+            opacity: 0.2;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+        }
+
+        .step-card h3 { font-size: 1.25rem; z-index: 1; }
+        .step-card p { font-size: 1rem; z-index: 1; color: var(--text-muted); }
+        .step-card a { color: var(--brand); font-weight: 600; }
+        .step-card a:hover { text-decoration: underline; }
+
+        /* MODS GRID */
+        .mod-section { text-align: center; }
+        
         .mod-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 1.5rem;
             justify-items: center;
             max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 10;
+            margin: 3rem auto 0;
         }
 
-        .mod-button {
-            width: 96px;
-            height: 96px;
-            border-radius: 24px; /* Discord "Squircle"ish */
-            background-color: var(--bg-secondary);
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .mod-btn {
+            width: 96px; height: 96px;
+            background: var(--bg-secondary);
+            border-radius: 24px; /* Squircle */
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: var(--shadow-low);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid transparent;
         }
 
-        .mod-button:hover {
-            transform: translateY(-4px) scale(1.05);
-            background-color: var(--brand);
-            box-shadow: var(--shadow-high);
+        .mod-btn:hover {
+            background: var(--brand);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
         }
 
-        .mod-button img {
-            width: 100%;
-            height: 100%;
+        .mod-btn img {
+            width: 52px; height: 52px;
             object-fit: contain;
             border-radius: 12px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            pointer-events: none;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
         }
-        
-        /* Tooltip-like label for mods */
-        .mod-button::after {
-            content: attr(data-label);
+
+        .mod-label {
             position: absolute;
-            bottom: -30px;
-            font-size: 0.85rem;
+            bottom: -32px;
             color: var(--text-muted);
+            font-size: 0.8rem;
             font-weight: 600;
             opacity: 0;
             transform: translateY(-5px);
-            transition: all 0.2s;
-            pointer-events: none;
+            transition: 0.2s;
             white-space: nowrap;
         }
-        
-        .mod-button:hover::after {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .mod-btn:hover .mod-label { opacity: 1; transform: translateY(0); color: var(--text-normal); }
 
-        /* --- Staff View Components --- */
+        /* STAFF CARDS (Discord Profile Style) */
         .staff-grid {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
-            padding-bottom: 4rem;
+            gap: 24px;
         }
 
-        .staff-card {
-            width: 300px;
-            background-color: #111214; /* Darker card bg */
+        .profile-card {
+            width: 100%; 
+            max-width: 320px; /* Fluid width for phones */
+            min-width: 280px;
+            background: var(--bg-deep);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            box-shadow: var(--shadow-low);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow-md);
             position: relative;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        
+        .profile-card:hover { 
+            transform: translateY(-6px); 
+            box-shadow: var(--shadow-lg); 
         }
 
-        .staff-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-high);
-        }
-
-        .staff-banner {
-            height: 120px;
+        .profile-banner {
+            height: 105px;
             background-color: var(--brand);
             background-size: cover;
             background-position: center;
         }
 
-        .staff-header {
-            position: relative;
-            padding: 0 16px;
-            margin-bottom: 12px;
-        }
-
-        .staff-avatar {
-            width: 92px; /* slightly larger */
-            height: 92px;
-            border-radius: 50%;
-            border: 6px solid #111214; /* Matches card bg */
-            margin-top: -50px;
-            background-color: #111214;
-            object-fit: cover;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Status Dot with Cutout Effect */
-        .staff-status-wrapper {
+        .profile-avatar-container {
             position: absolute;
-            bottom: 4px;
-            left: 74px;
-            z-index: 3;
-            background-color: #111214; /* Matches card bg */
-            border-radius: 50%;
-            padding: 4px; /* Creates the gap/cutout */
+            top: 61px;
+            left: 16px;
         }
 
-        .staff-status-dot {
-            width: 16px;
-            height: 16px;
+        .profile-avatar {
+            width: 88px; height: 88px;
             border-radius: 50%;
-            /* Border removed, using wrapper padding for cutout */
+            border: 6px solid var(--bg-deep);
+            background-color: var(--bg-deep);
+            position: relative;
+            z-index: 10;
+        }
+
+        .profile-avatar img {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            position: absolute;
+            bottom: 0px; right: 0px;
+            width: 28px; height: 28px;
+            background: var(--bg-deep);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 11;
         }
         
-        .status-online { background-color: var(--green); }
-        .status-idle { background-color: var(--yellow); }
-        .status-dnd { background-color: var(--red); }
-        .status-offline { background-color: var(--grey); }
+        .status-dot { width: 18px; height: 18px; border-radius: 50%; }
+        .status-dot.online { background-color: var(--status-online); }
+        .status-dot.idle { background-color: var(--status-idle); }
+        .status-dot.dnd { background-color: var(--status-dnd); }
+        .status-dot.offline { background-color: var(--status-offline); }
 
-        .staff-info {
-            padding: 0 16px 16px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            background-color: #111214;
-            border-radius: 0 0 8px 8px; /* Inner radius fix */
+        .profile-body {
+            margin-top: 50px;
+            padding: 16px;
+            background: var(--bg-deep);
         }
 
-        .staff-card-inner {
-            background-color: var(--bg-secondary); /* Inner rounded container */
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .profile-name-container { margin-bottom: 12px; }
 
-        .staff-name {
+        .profile-displayname {
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-header);
             line-height: 1.2;
         }
-        
-        .staff-username {
+
+        .profile-username {
             font-size: 0.9rem;
             color: var(--text-header);
-            opacity: 1;
             font-weight: 500;
         }
 
-        .staff-activity {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
+        /* Activity Card */
+        .activity-card {
+            background-color: var(--bg-primary); 
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 0.85rem;
         }
 
         .activity-header {
-            font-weight: 700;
-            font-size: 0.7rem;
+            font-weight: 800;
             text-transform: uppercase;
+            font-size: 0.75rem;
             color: var(--text-header);
-            margin-bottom: 4px;
-        }
-        
-        .activity-name {
-            font-size: 0.9rem;
-            color: var(--text-normal);
-            font-weight: 400;
-        }
-        
-        .activity-details {
-            font-size: 0.9rem;
-            color: var(--text-normal);
+            margin-bottom: 8px;
         }
 
-        /* --- Modal --- */
+        .activity-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .activity-icon {
+            width: 36px; height: 36px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .activity-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .activity-title { font-weight: 600; color: var(--text-normal); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 0.9rem; }
+        .activity-subtitle { color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+
+        /* BADGES */
+        .badge-container {
+            position: absolute;
+            top: 110px; right: 16px;
+            display: flex;
+            gap: 6px;
+        }
+        
+        .badge {
+            background: var(--bg-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .badge img { width: 12px; height: 12px; }
+
+        /* --- MODAL IMPROVEMENTS --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.85);
             z-index: 2000;
             display: none;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            backdrop-filter: blur(2px);
+            opacity: 0;
+            transition: opacity 0.2s;
+            backdrop-filter: blur(8px);
         }
 
-        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
+        .modal-overlay.open { display: flex; opacity: 1; }
 
         .modal-content {
             background: var(--bg-primary);
-            padding: 2rem;
-            border-radius: var(--radius-md);
-            max-width: 480px;
+            padding: 0; /* Removing padding to control sections */
+            border-radius: var(--radius-lg);
             width: 100%;
+            max-width: 550px;
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-overlay.open .modal-content { transform: scale(1) translateY(0); }
+
+        .modal-header-bg {
+            background: var(--bg-deep);
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             position: relative;
+        }
+
+        .modal-client-icon {
+            width: 64px; height: 64px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 10px;
+            object-fit: contain;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .modal-title-wrap h3 { margin: 0; font-size: 1.5rem; color: var(--text-header); line-height: 1.2; }
+        .modal-title-wrap p { margin: 0.25rem 0 0; font-size: 0.9rem; color: var(--text-muted); }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .close-modal:hover { background: var(--bg-modifier-hover); color: var(--text-header); }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        /* Step styling */
+        .install-step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .install-step-num {
+            background: var(--brand);
+            color: #fff;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .install-step-text {
+            color: var(--text-normal);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Modal Content Animations */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-body > * {
+            opacity: 0; /* Start hidden */
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Stagger the animations for a pleasing waterfall effect */
+        .modal-body > *:nth-child(1) { animation-delay: 0.1s; }
+        .modal-body > *:nth-child(2) { animation-delay: 0.25s; }
+        .modal-body > *:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Code Editor Look */
+        .code-window {
+            background: #1e1f22; /* VS Code-ish bg */
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow: hidden;
+            margin-top: 1rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .code-header {
+            background: #2b2d31;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.2);
+        }
+        .code-lang { font-family: var(--font-code); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .copy-code-btn {
+            background: transparent; border: none; color: var(--brand); font-weight: 600; 
+            font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px;
+        }
+        .copy-code-btn:hover { color: #fff; }
+        
+        .code-content {
+            padding: 16px;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            color: #d4d4d4;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .btn-link {
+            width: 100%;
             text-align: center;
-            box-shadow: var(--shadow-high);
+            display: block;
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-weight: 600;
+            color: var(--brand);
             border: 1px solid rgba(255,255,255,0.05);
         }
+        .btn-link:hover { background: var(--modifier-hover); color: #fff; }
 
-        .modal-close {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 1.5rem;
-            background: none;
-            border: none;
-            transition: color 0.2s;
+        /* FOOTER */
+        .footer {
+            margin-top: auto;
+            padding: 4rem 2rem;
+            background: var(--bg-deep);
+            text-align: center;
+            border-top: 1px solid var(--bg-tertiary);
         }
-        
-        .modal-close:hover { color: var(--text-normal); }
+        .footer-links { display: flex; justify-content: center; gap: 2.5rem; margin-bottom: 2rem; font-weight: 600; }
+        .footer-links a { color: var(--text-muted); }
+        .footer-links a:hover { color: var(--brand); }
+        .footer-copy { color: var(--text-muted); font-size: 0.9rem; opacity: 0.7; }
 
-        .code-block {
-            background: var(--bg-secondary);
-            padding: 1rem;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            text-align: left;
-            margin: 1.5rem 0;
-            overflow-x: auto;
-            position: relative;
-            border: 1px solid #1e1f22;
-            color: var(--text-normal);
-            font-size: 0.9rem;
-        }
-
-        .copy-btn {
-            background-color: var(--brand);
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-            width: 100%;
-        }
-
-        .copy-btn:hover { background-color: var(--brand-hover); }
-
-        /* --- Loading Spinner --- */
+        /* Loader */
         .loader {
+            width: 48px; height: 48px;
             border: 4px solid var(--bg-tertiary);
-            border-top: 4px solid var(--brand);
+            border-top-color: var(--brand);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 50px auto;
+            animation: spin 1s infinite linear;
+            margin: 60px auto;
         }
 
-        /* Media Queries */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .pfp-background { display: none; }
+            .bg-container { display: none; }
+            .navbar { padding: 1rem 1.25rem; }
+            .nav-inner { flex-direction: column; gap: 1rem; }
+            .nav-brand { margin-bottom: 0.25rem; }
+            .nav-links { 
+                width: 100%; 
+                justify-content: center; 
+                gap: 1.5rem; 
+                background: transparent; 
+                border: none; 
+                padding: 0; 
+                flex-wrap: wrap; /* Ensure links wrap on very small screens */
+            }
+            .nav-cta { 
+                display: block; /* Force display on mobile */
+                width: 100%; 
+                text-align: center;
+            }
             h1 { font-size: 2.5rem; }
-            .navbar { padding: 0.8rem 1rem; }
-            .staff-grid { flex-direction: column; align-items: center; }
+            .hero-section { margin-bottom: 4rem; padding: 0 1rem; }
+            .hero-desc { font-size: 1.1rem; }
+            .steps-grid { grid-template-columns: 1fr; }
             .staff-card { width: 100%; max-width: 320px; }
+            .modal-content { padding: 0; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation -->
+    <!-- ANIMATED BACKGROUND -->
+    <div class="bg-container" id="bgAnim">
+        <div class="pfp-column col-left"><div class="pfp-track" id="track1"></div></div>
+        <div class="pfp-column col-right"><div class="pfp-track" id="track2"></div></div>
+    </div>
+
+    <!-- NAVBAR -->
     <nav class="navbar">
-        <a class="nav-link active" href="#home">Home</a>
-        <a class="nav-link" href="#staff">Staff</a>
-        <a class="nav-link" href="https://discord.com/invite/userpfp-1129784704267210844" target="_blank">Discord</a>
+        <div class="nav-inner">
+            <a href="#home" class="nav-brand">
+                <span>User</span>PFP
+            </a>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#staff" class="nav-link">Staff</a>
+                <a href="https://github.com/UserPFP/UserPFP" target="_blank" class="nav-link">GitHub</a>
+                <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="nav-link">Discord</a>
+            </div>
+        </div>
     </nav>
 
-    <!-- Background Animation (Home Only) -->
-    <div id="pfp-bg-container" style="display: block;">
-        <div class="pfp-background pfp-bg-left"><div class="pfp-track" id="pfpColumn1"></div></div>
-        <div class="pfp-background pfp-bg-right"><div class="pfp-track" id="pfpColumn2"></div></div>
-    </div>
-
-    <!-- Home View -->
+    <!-- HOME VIEW -->
     <main id="home-view" class="view-container active">
-        <div class="hero">
-            <h1>UserPFP</h1>
-            <p>Use animated profile pictures on Discord — even without Nitro!</p>
-            
-            <h2>How to Request</h2>
-            <div class="steps-container">
-                <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="step-link">1. Join the UserPFP Discord</a>
-                <a href="https://discord.com/channels/1129784704267210844/1162834399801384970" target="_blank" class="step-link">2. Read Server Rules</a>
-                <a href="https://discord.com/channels/1129784704267210844/1162800344603037856" target="_blank" class="step-link">3. Go to #request-here</a>
-                <a href="https://discord.com/channels/1129784704267210844/1162800681409855600" target="_blank" class="step-link">4. Wait for Approval</a>
+        <section class="hero-section">
+            <div class="hero-title">
+                <h1>Unlock Animated<br><span>Profiles & Banners</span></h1>
             </div>
+            <p class="hero-desc">
+                UserPFP is a client modification that unlocks animated profile pictures and banners on Discord without Nitro, visible to all other users of the mod.
+            </p>
+            <div class="hero-buttons">
+                <!-- Dropdown Wrapper -->
+                <div class="dropdown">
+                    <button class="btn btn-brand" onclick="toggleDropdown(event)">Get Started</button>
+                    <div class="dropdown-menu" id="clientDropdown">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+                <a href="#steps" class="btn btn-secondary">Installation Guide</a>
+            </div>
+        </section>
 
-            <h2>Choose Your Client Mod</h2>
-            <div class="mod-grid" id="modGrid">
-                <!-- Mod buttons generated by JS -->
+        <section id="steps" class="steps-section">
+            <h2 style="text-align:center;">How It Works</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <h3>Join the Community</h3>
+                    <p>Join the <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank">Official Discord Server</a>. This is where the database lives and where you submit your request.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <h3>Submit Request</h3>
+                    <p>Read the rules carefully, then upload your desired GIF in the <code>#request-here</code> channel.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <h3>Install Mod</h3>
+                    <p>Choose your client below and follow the instructions to enable the database connection.</p>
+                </div>
             </div>
+        </section>
+
+        <section class="mod-section">
+            <h2>Select Your Client</h2>
+            <p style="margin-bottom: 2rem;">Click an icon to view installation instructions.</p>
+            <div class="mod-grid" id="modGrid">
+                <!-- Javascript will populate this -->
+            </div>
+        </section>
+    </main>
+
+    <!-- STAFF VIEW -->
+    <main id="staff-view" class="view-container">
+        <div style="text-align:center; margin-bottom: 5rem;">
+            <h1>Meet The Team</h1>
+            <p>The developers and staff making UserPFP possible.</p>
+        </div>
+        <div id="staffLoader" class="loader"></div>
+        <div class="staff-grid" id="staffGrid">
+            <!-- Javascript will populate this -->
         </div>
     </main>
 
-    <!-- Staff View -->
-    <main id="staff-view" class="view-container">
-        <h1>Meet the Staff</h1>
-        <p>The team behind UserPFP.</p>
-        <div id="staff-loader" class="loader"></div>
-        <div class="staff-grid" id="staffGrid"></div>
-    </main>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="https://github.com/UserPFP/UserPFP" target="_blank">Source Code</a>
+            <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank">Support</a>
+        </div>
+        <div class="footer-copy">
+            &copy; 2025 UserPFP. Not affiliated with Discord Inc.
+        </div>
+    </footer>
 
-    <!-- Modal -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="infoModal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()">×</button>
-            <h3 id="modalTitle" style="margin-top:0; font-size: 1.5rem; margin-bottom: 0.5rem;">Mod Name</h3>
-            <p id="modalDesc" style="color: var(--text-normal);">Description goes here.</p>
-            <div id="modalCodeArea"></div>
+            <!-- Header with Logo -->
+            <div class="modal-header-bg">
+                <img id="modalClientIcon" class="modal-client-icon" src="" alt="Client">
+                <div class="modal-title-wrap">
+                    <h3 id="modalTitle">Mod Name</h3>
+                    <p>Installation Instructions</p>
+                </div>
+                <button class="close-modal" onclick="closeModal()">×</button>
+            </div>
+            
+            <!-- Body -->
+            <div class="modal-body" id="modalBody">
+                <!-- Injected via JS -->
+            </div>
         </div>
     </div>
 
+    <!-- MAIN SCRIPT -->
     <script>
-        // --- Redirection Logic ---
-        // 1. Handle legacy /website path (if this file is copied to /website/index.html)
-        if (window.location.pathname.includes('/website')) {
-            const currentHash = window.location.hash || '#home';
-            window.location.replace('/' + currentHash);
-        }
-
-        // --- Routing Logic ---
-        function handleRoute() {
-            // Get hash or default to 'home'
-            let viewName = window.location.hash.replace('#', '') || 'home';
-
-            // Valid routes check
-            if (!['home', 'staff'].includes(viewName)) {
-                viewName = 'home';
-            }
-
-            // Update Nav
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${viewName}`) link.classList.add('active');
-            });
-
-            // Update View visibility
-            document.querySelectorAll('.view-container').forEach(view => {
-                view.classList.remove('active');
-            });
-            const activeView = document.getElementById(`${viewName}-view`);
-            if (activeView) activeView.classList.add('active');
-
-            // Handle background & Lazy Loading
-            const bgContainer = document.getElementById('pfp-bg-container');
-            if (viewName === 'home') {
-                if (bgContainer) bgContainer.style.display = 'block';
-                if (!window.pfpsLoaded) loadPfps();
-            } else {
-                if (bgContainer) bgContainer.style.display = 'none';
-                if (!window.staffLoaded && viewName === 'staff') loadStaff();
-            }
-            
-            // Scroll to top
-            window.scrollTo(0, 0);
-        }
-
-        // --- Home Logic (PFP Columns & Mods) ---
-        const modLogos = {
-            equicord: "https://equicord.org/assets/icons/equicord/icon-black.png",
-            vencord: "https://equicord.org/assets/icons/vencord/icon.png",
-            betterdiscord: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7008-a89e-30427975b652",
-            goosecord: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7007-ab73-65dffb4353b8",
-            replugged: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7006-8ac6-8512377d1f58",
-            shelter: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7005-a865-2d3cc2f6b23c",
-            aliucord: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7004-844b-04dbc906256c",
-            vendetta: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7003-8d7d-5e59de0a38d3",
-            bunny: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7002-af09-71777b39c12f",
-            revenge: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7000-94cc-2800ec57cd07",
-            kettu: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7001-ad48-2d37d308f96f",
-        };
-
+        // --- CONFIGURATION ---
         const modData = {
-            equicord: { desc: "Go to Settings → Plugins → Search for 'UserPFP' and turn it on!", code: null, link: null },
-            vencord: { desc: "Vencord only supports the theme. Paste this link into Settings → Themes → Online Themes.", code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css", link: null },
-            betterdiscord: { desc: "Add this line to your CustomCSS or QuickCSS to enable UserPFP.", code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');", link: null },
-            goosecord: { desc: "Add the import line to your Goosecord setup.", code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');", link: null },
-            replugged: { desc: "Install UserPFP from the official plugin store.", code: null, link: "https://replugged.dev/store/dev.WolfPlugs.UserPFP" },
-            shelter: { desc: "Add this plugin link to your Shelter plugins list.", code: "https://spikehd.dev/shelter-plugins/userpfp/", link: "https://spikehd.dev/shelter-plugins/userpfp/" },
-            aliucord: { desc: "Download the plugin file and add it to your Aliucord plugins folder.", code: null, link: "https://github.com/OmegaSunkey/awesomeplugins/raw/builds/UserPFP.zip" },
-            vendetta: { desc: "Add this link to Vendetta in the plugins tab.", code: "https://revenge.nexpid.xyz/userpfp", link: "https://revenge.nexpid.xyz/userpfp" },
-            bunny: { desc: "Add this link to Bunny in the plugins tab.", code: "https://revenge.nexpid.xyz/userpfp", link: "https://revenge.nexpid.xyz/userpfp" },
-            revenge: { desc: "Add this link to Revenge in the plugins tab.", code: "https://revenge.nexpid.xyz/userpfp", link: "https://revenge.nexpid.xyz/userpfp" },
-            kettu: { desc: "Add this link to Kettu in the plugins tab.", code: "https://revenge.nexpid.xyz/userpfp", link: "https://revenge.nexpid.xyz/userpfp" },
+            equicord: { 
+                logo: "https://equicord.org/assets/icons/equicord/icon-black.png",
+                desc: "Go to User Settings → Plugins → Search for 'UserPFP' → Toggle the switch to enable it.",
+                code: null 
+            },
+            vencord: { 
+                logo: "https://equicord.org/assets/icons/vencord/icon.png",
+                desc: "Vencord requires the theme import. Copy the link below and paste it into Settings → Themes → Online Themes.",
+                code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css" 
+            },
+            betterdiscord: { 
+                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7008-a89e-30427975b652",
+                desc: "Open your Custom CSS or QuickCSS file in BetterDiscord settings and add this import line.",
+                code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');" 
+            },
+            replugged: {
+                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7006-8ac6-8512377d1f58",
+                desc: "Click the link below to install the plugin directly from the official Replugged store.",
+                link: "https://replugged.dev/store/dev.WolfPlugs.UserPFP"
+            },
+            aliucord: {
+                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7004-844b-04dbc906256c",
+                desc: "Download the ZIP file and place it in your Aliucord plugins directory on your device.",
+                link: "https://github.com/OmegaSunkey/awesomeplugins/raw/builds/UserPFP.zip"
+            },
+            vendetta: {
+                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7003-8d7d-5e59de0a38d3",
+                desc: "Copy the link below and paste it into the Plugins tab in your Vendetta settings.",
+                link: "https://revenge.nexpid.xyz/userpfp"
+            },
+             shelter: { 
+                 logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7005-a865-2d3cc2f6b23c",
+                 desc: "Add this plugin repo link to Shelter settings to install.", 
+                 link: "https://spikehd.dev/shelter-plugins/userpfp/" 
+            },
         };
 
-        function initMods() {
-            const grid = document.getElementById('modGrid');
-            Object.entries(modLogos).forEach(([key, url]) => {
-                const btn = document.createElement('div');
-                btn.className = 'mod-button';
-                btn.setAttribute('data-label', key.charAt(0).toUpperCase() + key.slice(1));
-                btn.innerHTML = `<img src="${url}" alt="${key}">`;
-                btn.onclick = () => openModal(key);
-                grid.appendChild(btn);
-            });
-        }
-
-        async function loadPfps() {
-            window.pfpsLoaded = true;
-            let data = null;
-            try {
-                // CHANGED: Fetches from the NEW repo (Yeetov/usrpfpwebsite)
-                const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
-                if (res.ok) {
-                    data = await res.json();
-                } else {
-                    // Force throw if not ok (e.g. 404) to trigger fallback
-                    throw new Error('New repo fetch failed with status: ' + res.status);
-                }
-            } catch (e) {
-                console.warn("Failed to load from new repo, attempting fallback...", e);
-                try {
-                    // Fallback to the original repository
-                    const res = await fetch('https://userpfp.github.io/UserPFP/source/data.json');
-                    if (res.ok) {
-                        data = await res.json();
-                    }
-                } catch (e2) {
-                    console.error("Failed to load PFPs from fallback", e2);
-                }
-            }
-            
-            if (!data) return; // Exit if both fail
-
-            const urls = Object.values(data.avatars || {}).filter(url => 
-                !url.includes("profileBadges") && !url.includes("cdn.discordapp.com/icons/")
-            );
-            
-            // Shuffle
-            for (let i = urls.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [urls[i], urls[j]] = [urls[j], urls[i]];
-            }
-
-            renderColumn(urls.slice(0, 30), 'pfpColumn1');
-            renderColumn(urls.slice(30, 60), 'pfpColumn2');
-        }
-
-        function renderColumn(urls, id) {
-            const container = document.getElementById(id);
-            // Duplicate for smooth loop
-            [...urls, ...urls].forEach(url => {
-                const div = document.createElement('div');
-                div.className = 'pfp-item';
-                div.innerHTML = `<img src="${url}" loading="lazy" onerror="this.parentElement.remove()">`;
-                container.appendChild(div);
-            });
-        }
-
-        // --- Modal Logic ---
-        function openModal(key) {
-            const data = modData[key];
-            document.getElementById('modalTitle').innerText = key.charAt(0).toUpperCase() + key.slice(1);
-            document.getElementById('modalDesc').innerText = data.desc;
-            
-            const codeArea = document.getElementById('modalCodeArea');
-            codeArea.innerHTML = '';
-
-            if (data.code) {
-                codeArea.innerHTML = `
-                    <div class="code-block" id="copyTarget">${data.code}</div>
-                    <button class="copy-btn" onclick="copyText('${data.code}')">Copy Code</button>
-                `;
-            } else if (data.link) {
-                codeArea.innerHTML = `<a href="${data.link}" target="_blank" class="copy-btn" style="text-decoration:none; display:inline-block;">Open Link</a>`;
-            }
-
-            document.getElementById('infoModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('infoModal').classList.remove('active');
-        }
-
-        function copyText(text) {
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            
-            const btn = document.querySelector('.copy-btn');
-            const original = btn.innerText;
-            btn.innerText = "Copied!";
-            btn.style.backgroundColor = "var(--green)";
-            setTimeout(() => {
-                btn.innerText = original;
-                btn.style.backgroundColor = "";
-            }, 2000);
-        }
-
-        // --- Staff Logic ---
         const staffIds = [
             "406084422308331522", "789872551731527690", "853550207039832084", 
             "848339671629299742", "500212086765518858", "250322741406859265", 
@@ -784,9 +1023,7 @@
             "1124647765075566662", "613725399263739926", "422319200095436800"
         ];
 
-        // Manual Banner Map (Higher priority than USRBG if set, or we can use USRBG as fallback)
-        // Currently setting manual ones.
-        const manualBannerMap = {
+        const manualBanners = {
             "406084422308331522": "https://i.imgur.com/vzyxjz8.gif", 
             "789872551731527690": "https://i.imgur.com/U3xaMjR.gif",
             "853550207039832084": "https://i.ibb.co/MBY0qxx/nexpid.gif",
@@ -797,10 +1034,77 @@
             "258731845267619840": "https://i.imgur.com/2mitqtb.png"
         };
         
+        // State variables for new logic
         const customPfps = {};
         let usrbgData = null;
 
-        const StatusLabels = { online: "Online", idle: "Idle", dnd: "Do Not Disturb", offline: "Offline" };
+        // --- CORE LOGIC ---
+
+        function init() {
+            renderMods();
+            renderDropdown(); // Init dropdown
+            handleRoute();
+            window.addEventListener('hashchange', handleRoute);
+            
+            // Only load BG animation on desktop to save mobile battery
+            if(window.innerWidth > 768) loadBackgroundPfps();
+            
+            // Close modal on outside click
+            document.getElementById('infoModal').addEventListener('click', (e) => {
+                if(e.target.id === 'infoModal') closeModal();
+            });
+
+            // Close dropdown on outside click
+            window.addEventListener('click', () => {
+                const menu = document.getElementById('clientDropdown');
+                if(menu && menu.classList.contains('show')) {
+                    menu.classList.remove('show');
+                }
+            });
+            
+            // 1. Handle legacy /website path (if this file is copied to /website/index.html)
+            if (window.location.pathname.includes('/website')) {
+                const currentHash = window.location.hash || '#home';
+                window.location.replace('/' + currentHash);
+            }
+        }
+
+        function handleRoute() {
+            // Get hash or default to 'home'
+            let viewName = window.location.hash.replace('#', '') || 'home';
+
+            // Valid routes check
+            if (!['home', 'staff'].includes(viewName)) {
+                viewName = 'home';
+            }
+            
+            // Scroll top
+            window.scrollTo(0,0);
+
+            // Toggle Nav Active State
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${viewName}`) link.classList.add('active');
+            });
+
+            // Toggle Views
+            document.querySelectorAll('.view-container').forEach(view => {
+                view.classList.remove('active');
+            });
+            const activeView = document.getElementById(`${viewName}-view`);
+            if (activeView) activeView.classList.add('active');
+
+            // View-Specific Logic
+            const bgContainer = document.getElementById('bgAnim');
+            if(viewName === 'home') {
+                if(bgContainer) bgContainer.style.display = 'block';
+            } else if (viewName === 'staff') {
+                if(bgContainer) bgContainer.style.display = 'none';
+                if(!window.staffLoaded) loadStaff();
+            }
+        }
+
+        // --- DATA FETCHERS (Logic from snippet) ---
 
         async function fetchCustomPfps() {
             try {
@@ -843,118 +1147,311 @@
             return `${endpoint}/${bucket}/${prefix}${userId}?${etag}`;
         }
 
+        // --- HOME LOGIC ---
+
+        function renderMods() {
+            const grid = document.getElementById('modGrid');
+            Object.entries(modData).forEach(([key, data]) => {
+                const btn = document.createElement('div');
+                btn.className = 'mod-btn';
+                btn.innerHTML = `
+                    <img src="${data.logo}" alt="${key}">
+                    <span class="mod-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                `;
+                btn.onclick = () => openModal(key, data);
+                grid.appendChild(btn);
+            });
+        }
+
+        // --- NEW DROPDOWN LOGIC ---
+        function renderDropdown() {
+            const menu = document.getElementById('clientDropdown');
+            if(!menu) return;
+            
+            menu.innerHTML = `
+                <div class="dropdown-header">Select Client</div>
+                <div class="dropdown-search-wrapper">
+                    <input type="text" id="clientSearch" class="dropdown-search" placeholder="Search..." oninput="filterDropdown()">
+                </div>
+                <div id="dropdownList" class="dropdown-list-container"></div>
+            `;
+            
+            const list = document.getElementById('dropdownList');
+            
+            Object.entries(modData).forEach(([key, data]) => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.setAttribute('data-name', key); 
+                item.onclick = () => {
+                    // Close dropdown first
+                    const m = document.getElementById('clientDropdown');
+                    if(m) m.classList.remove('show');
+                    
+                    // Small delay for animation feel before opening modal
+                    setTimeout(() => {
+                        openModal(key, data);
+                    }, 200);
+                };
+                item.innerHTML = `<img src="${data.logo}" alt="${key}"> ${key.charAt(0).toUpperCase() + key.slice(1)}`;
+                list.appendChild(item);
+            });
+        }
+
+        function filterDropdown() {
+            const input = document.getElementById('clientSearch');
+            const filter = input.value.toLowerCase();
+            const items = document.querySelectorAll('.dropdown-item');
+            
+            items.forEach(item => {
+                const text = item.getAttribute('data-name');
+                if (text.toLowerCase().includes(filter)) {
+                    item.style.display = "flex";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        function toggleDropdown(e) {
+            if(e) e.stopPropagation();
+            const menu = document.getElementById('clientDropdown');
+            menu.classList.toggle('show');
+            // Focus input if showing
+            if(menu.classList.contains('show')) {
+                setTimeout(() => {
+                    const input = document.getElementById('clientSearch');
+                    if(input) input.focus();
+                }, 100);
+            }
+        }
+
+        async function loadBackgroundPfps() {
+            window.pfpsLoaded = true;
+            try {
+                const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
+                const data = await res.json();
+                
+                const urls = Object.values(data.avatars || {})
+                    .filter(u => !u.includes("profileBadges") && u.startsWith("http"))
+                    .sort(() => 0.5 - Math.random()) // Shuffle
+                    .slice(0, 40); // Take 40
+
+                const fill = (id, items) => {
+                    const el = document.getElementById(id);
+                    if(!el) return;
+                    // Double for loop
+                    [...items, ...items].forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = 'bg-pfp';
+                        img.loading = "lazy";
+                        img.onerror = () => img.remove();
+                        el.appendChild(img);
+                    });
+                };
+                
+                fill('track1', urls.slice(0, 20));
+                fill('track2', urls.slice(20, 40));
+
+            } catch(e) { console.warn("BG Load Failed", e); }
+        }
+
+        // --- STAFF LOGIC (Refined for parallel loading) ---
+
         async function loadStaff() {
             window.staffLoaded = true;
-            const loader = document.getElementById('staff-loader');
             const grid = document.getElementById('staffGrid');
+            const loader = document.getElementById('staffLoader');
             
+            grid.innerHTML = ''; // Clear current
+            loader.style.display = 'block';
+
             try {
-                // Fetch external data concurrently
+                // 1. Fetch global assets
                 await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
 
-                // Shuffle staff
-                for (let i = staffIds.length - 1; i > 0; i--) {
-                    const r = Math.floor(Math.random() * (i + 1));
-                    [staffIds[i], staffIds[r]] = [staffIds[r], staffIds[i]];
-                }
+                const shuffled = staffIds.sort(() => 0.5 - Math.random());
 
-                // Fetch Lanyard data
-                const userData = {};
-                await Promise.all(staffIds.map(async id => {
-                    try {
-                        const res = await fetch(`https://lanyard.equicord.org/v1/users/${id}`);
-                        const json = await res.json();
-                        if (json.success) userData[id] = json.data;
-                    } catch (e) { console.error(e); }
-                }));
+                // 2. Create an array of fetch promises
+                const userPromises = shuffled.map(id => 
+                    fetch(`https://lanyard.equicord.org/v1/users/${id}`)
+                        .then(res => res.json())
+                        .then(data => data.success ? { id, data: data.data } : null)
+                        .catch(err => null)
+                );
 
-                loader.style.display = 'none';
-                
-                staffIds.forEach(id => {
-                    if (userData[id]) {
-                        grid.innerHTML += createStaffCard(userData[id], id);
+                // 3. Wait for ALL to finish
+                const results = await Promise.all(userPromises);
+
+                // 4. Render all valid results at once
+                let allCardsHTML = '';
+                results.forEach(result => {
+                    if (result) {
+                        allCardsHTML += createStaffCard(result.data, result.id);
                     }
                 });
-            } catch (e) {
+                
+                // Hide loader and show content
                 loader.style.display = 'none';
-                grid.innerHTML = "<p>Failed to load staff members.</p>";
+                grid.innerHTML = allCardsHTML;
+
+            } catch(e) {
+                console.error("Critical staff load error", e);
+                loader.style.display = 'none';
+                grid.innerHTML = '<p style="color:var(--text-muted)">Unable to load staff members.</p>';
             }
         }
 
         function createStaffCard(data, id) {
-            const u = data.discord_user;
-            const status = data.discord_status;
+            const user = data.discord_user;
             
+            // --- PRIORITY LOGIC START ---
             // Avatar Priority: Custom CSS > Discord Avatar > Default
-            const avatar = customPfps[id] ? customPfps[id] : (u.avatar ? 
-                `https://cdn.discordapp.com/avatars/${id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'webp'}?size=128` : 
+            const avatar = customPfps[id] ? customPfps[id] : (user.avatar ? 
+                `https://cdn.discordapp.com/avatars/${id}/${user.avatar}.${user.avatar.startsWith('a_') ? 'gif' : 'webp'}?size=128` : 
                 'https://cdn.discordapp.com/embed/avatars/0.png');
             
             // Banner Priority: USRBG > Manual Map > Empty (fallback color)
             let banner = getUsrbgUrl(id);
             if (!banner) {
-                banner = manualBannerMap[id] || "";
+                banner = manualBanners[id] || "";
             }
-            
-            let activityHtml = '';
-            const activity = data.activities.find(a => a.type !== 4); 
-            const custom = data.activities.find(a => a.type === 4);
+            // --- PRIORITY LOGIC END ---
 
-            if (status !== 'offline' && activity) {
-                // Formatting Rich Presence Look
+            const bannerStyle = banner ? `background-image: url('${banner}')` : '';
+            const statusMap = { online:'online', idle:'idle', dnd:'dnd', offline:'offline' };
+            const statusClass = statusMap[data.discord_status] || 'offline';
+
+            // Activity Logic
+            let activityHtml = '';
+            
+            // Find a rich presence or custom status
+            // Filter out custom status (type 4) for Rich Presence check
+            const rich = data.activities.find(a => a.type !== 4); 
+            const custom = data.activities.find(a => a.type === 4); 
+            
+            if (rich) {
+                const iconId = rich.assets?.large_image;
+                const iconUrl = iconId ? (iconId.startsWith('mp:') ? `https://media.discordapp.net/${iconId.replace('mp:','')}` : `https://cdn.discordapp.com/app-assets/${rich.application_id}/${iconId}.png`) : null;
+                
                 activityHtml = `
-                    <div class="staff-card-inner">
-                        <div class="activity-header">${['Playing', 'Streaming', 'Listening to', 'Watching', '', 'Competing in'][activity.type] || 'Playing'}</div>
-                        <div class="staff-activity">
-                            <div class="activity-name" style="font-weight: 600; font-size: 0.95rem; color: var(--text-normal);">${activity.name}</div>
-                            ${activity.details ? `<div class="activity-details">${activity.details}</div>` : ''}
-                            ${activity.state ? `<div class="activity-details">${activity.state}</div>` : ''}
+                    <div class="activity-card">
+                        <div class="activity-header">Playing</div>
+                        <div class="activity-row">
+                            ${iconUrl ? `<img src="${iconUrl}" class="activity-icon">` : ''}
+                            <div class="activity-info">
+                                <div class="activity-title">${rich.name}</div>
+                                <div class="activity-subtitle">${rich.details || rich.state || ''}</div>
+                            </div>
                         </div>
                     </div>
                 `;
             } else if (custom && custom.state) {
                  activityHtml = `
-                    <div class="staff-card-inner">
-                         <div class="activity-header">Custom Status</div>
-                        <div class="activity-details">${custom.state}</div>
+                    <div class="activity-card">
+                        <div class="activity-header">Custom Status</div>
+                        <div class="activity-row">
+                             <div class="activity-info">
+                                <div class="activity-subtitle">${custom.emoji ? custom.emoji.name + ' ' : ''}${custom.state}</div>
+                            </div>
+                        </div>
                     </div>
                 `;
             }
 
+            // Return HTML String matching the MODERN CSS structure
             return `
-                <div class="staff-card">
-                    <div class="staff-banner" style="${banner ? `background-image: url('${banner}')` : ''}"></div>
-                    <div class="staff-header">
-                        <img class="staff-avatar" src="${avatar}" alt="${u.username}">
-                        <div class="staff-status-wrapper">
-                            <div class="staff-status-dot status-${status}" title="${StatusLabels[status]}"></div>
+                <div class="profile-card">
+                    <div class="profile-banner" style="${bannerStyle}"></div>
+                    <div class="badge-container">
+                        <div class="badge">Staff</div>
+                    </div>
+                    <div class="profile-avatar-container">
+                        <div class="profile-avatar">
+                            <img src="${avatar}" alt="${user.username}">
+                            <div class="status-badge">
+                                <div class="status-dot ${statusClass}"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="staff-info">
-                        <div class="staff-name">${u.global_name || u.username}</div>
-                        <div class="staff-username">${u.username}</div>
+                    <div class="profile-body">
+                        <div class="profile-name-container">
+                            <div class="profile-displayname">${user.global_name || user.username}</div>
+                            <div class="profile-username">@${user.username}</div>
+                        </div>
                         ${activityHtml}
                     </div>
                 </div>
             `;
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            initMods();
+        // --- MODAL LOGIC ---
+        function openModal(title, data) {
+            const modal = document.getElementById('infoModal');
+            const content = document.getElementById('modalBody');
             
-            // Initial routing
-            handleRoute();
+            // Set Header Info
+            document.getElementById('modalTitle').innerText = title.charAt(0).toUpperCase() + title.slice(1);
+            document.getElementById('modalClientIcon').src = data.logo;
             
-            // Close modal when clicking outside
-            document.getElementById('infoModal').addEventListener('click', (e) => {
-                if(e.target === document.getElementById('infoModal')) closeModal();
+            content.innerHTML = '';
+            
+            // Create "Instruction Step" UI
+            content.innerHTML = `
+                <div class="install-step">
+                    <div class="install-step-num">1</div>
+                    <div class="install-step-text">${data.desc}</div>
+                </div>
+            `;
+
+            if(data.code) {
+                // Code Editor Look
+                content.innerHTML += `
+                    <div class="install-step">
+                        <div class="install-step-num">2</div>
+                        <div class="install-step-text">Copy the code below:</div>
+                    </div>
+                    <div class="code-window">
+                        <div class="code-header">
+                            <span class="code-lang">CSS / LINK</span>
+                            <button class="copy-code-btn" onclick="copyCode(this, '${data.code}')">
+                                <span>COPY</span>
+                            </button>
+                        </div>
+                        <div class="code-content">${data.code}</div>
+                    </div>
+                `;
+            } else if (data.link) {
+                // Link Button Look
+                content.innerHTML += `
+                    <a href="${data.link}" target="_blank" class="btn-link">
+                        Open Installation Link
+                    </a>
+                `;
+            }
+
+            modal.classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').classList.remove('open');
+        }
+
+        function copyCode(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const span = btn.querySelector('span');
+                const original = span.innerText;
+                span.innerText = "COPIED!";
+                btn.style.color = "var(--text-positive)";
+                setTimeout(() => {
+                    span.innerText = original;
+                    btn.style.color = "";
+                }, 2000);
             });
+        }
 
-            // Listen for hash changes
-            window.addEventListener('hashchange', handleRoute);
-        });
-
+        // Start App
+        init();
     </script>
 </body>
 </html>
