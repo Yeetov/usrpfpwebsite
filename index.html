@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UserPFP</title>
+    <!-- Inter font is the closest free Google Font to Discord's 'gg sans' -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Uni+Sans:wght@700&display=swap" rel="stylesheet" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <style>
+        :root {
+            /* Discord Modern Color Palette */
+            --bg-primary: #313338;
+            --bg-secondary: #2b2d31;
+            --bg-tertiary: #1e1f22;
+            --bg-modifier-hover: rgba(78, 80, 88, 0.3);
+            --bg-modifier-active: rgba(78, 80, 88, 0.6);
+            
+            --text-normal: #dbdee1;
+            --text-muted: #949ba4;
+            --text-header: #f2f3f5;
+            --text-link: #00a8fc;
+            
+            --brand: #5865F2;
+            --brand-hover: #4752c4;
+            
+            --green: #23a559;
+            --red: #fa777c;
+            --yellow: #f0b232;
+            --grey: #80848e;
+            
+            --font-primary: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --font-display: 'Uni Sans', sans-serif;
+            
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-round: 50%;
+            
+            --shadow-low: 0 2px 10px 0 rgba(0,0,0,0.2);
+            --shadow-high: 0 8px 16px 0 rgba(0,0,0,0.24);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+            background-color: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #1a1b1e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background-color: var(--bg-secondary);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-primary);
+            background-color: var(--bg-primary);
+            color: var(--text-normal);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); scale: 0.98; }
+            to { opacity: 1; transform: translateY(0); scale: 1; }
+        }
+
+        @keyframes scrollColumn {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background-color: var(--bg-tertiary);
+            padding: 0.8rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-low);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid #111;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: var(--text-header);
+            background-color: var(--bg-modifier-hover);
+        }
+
+        .nav-link.active {
+            color: #fff;
+            background-color: var(--bg-modifier-active);
+        }
+
+        /* --- Layout & Views --- */
+        .view-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+            display: none;
+        }
+
+        .view-container.active {
+            display: block;
+            animation: fadeIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        h1, h2, h3 {
+            color: var(--text-header);
+            text-align: center;
+        }
+
+        h1 { 
+            font-family: var(--font-display);
+            font-size: 3.5rem; 
+            margin-bottom: 0.5rem; 
+            letter-spacing: 1px;
+            text-shadow: 0 4px 4px rgba(0,0,0,0.25);
+        }
+        
+        h2 { 
+            font-size: 1.5rem; 
+            margin-top: 3rem; 
+            margin-bottom: 1.5rem; 
+            font-weight: 700;
+        }
+
+        p { 
+            line-height: 1.6; 
+            text-align: center; 
+            max-width: 700px; 
+            margin: 0 auto 1.5rem; 
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* --- Home View Components --- */
+        .hero {
+            position: relative;
+            z-index: 10;
+            padding-bottom: 4rem;
+        }
+
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-low);
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+
+        .step-link {
+            display: flex;
+            align-items: center;
+            color: var(--text-normal);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .step-link:hover {
+            background-color: var(--bg-modifier-hover);
+            color: var(--text-header);
+        }
+        
+        .step-link::before {
+            content: '#';
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-right: 12px;
+            font-weight: 400;
+        }
+
+        /* Scrolling Background Columns */
+        .pfp-background {
+            position: fixed;
+            top: 72px; /* Below navbar */
+            bottom: 0;
+            width: 120px;
+            overflow: hidden;
+            z-index: 0;
+            opacity: 0.15; /* Subtler */
+            pointer-events: none;
+            mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+        }
+
+        .pfp-bg-left { left: 20px; }
+        .pfp-bg-right { right: 20px; }
+
+        .pfp-track {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: scrollColumn 60s linear infinite;
+        }
+
+        .pfp-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--bg-tertiary);
+            overflow: hidden;
+            margin: 0 auto;
+            box-shadow: var(--shadow-low);
+            border: 2px solid var(--bg-secondary);
+        }
+
+        .pfp-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Mods Section */
+        .mod-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 1.5rem;
+            justify-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .mod-button {
+            width: 96px;
+            height: 96px;
+            border-radius: 24px; /* Discord "Squircle"ish */
+            background-color: var(--bg-secondary);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-low);
+            position: relative;
+        }
+
+        .mod-button:hover {
+            transform: translateY(-4px) scale(1.05);
+            background-color: var(--brand);
+            box-shadow: var(--shadow-high);
+        }
+
+        .mod-button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        /* Tooltip-like label for mods */
+        .mod-button::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -30px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.2s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        .mod-button:hover::after {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Staff View Components --- */
+        .staff-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding-bottom: 4rem;
+        }
+
+        .staff-card {
+            width: 300px;
+            background-color: #111214; /* Darker card bg */
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-low);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .staff-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-high);
+        }
+
+        .staff-banner {
+            height: 120px;
+            background-color: var(--brand);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .staff-header {
+            position: relative;
+            padding: 0 16px;
+            margin-bottom: 12px;
+        }
+
+        .staff-avatar {
+            width: 92px; /* slightly larger */
+            height: 92px;
+            border-radius: 50%;
+            border: 6px solid #111214; /* Matches card bg */
+            margin-top: -50px;
+            background-color: #111214;
+            object-fit: cover;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Status Dot with Cutout Effect */
+        .staff-status-wrapper {
+            position: absolute;
+            bottom: 4px;
+            left: 74px;
+            z-index: 3;
+            background-color: #111214; /* Matches card bg */
+            border-radius: 50%;
+            padding: 4px; /* Creates the gap/cutout */
+        }
+
+        .staff-status-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            /* Border removed, using wrapper padding for cutout */
+        }
+        
+        .status-online { background-color: var(--green); }
+        .status-idle { background-color: var(--yellow); }
+        .status-dnd { background-color: var(--red); }
+        .status-offline { background-color: var(--grey); }
+
+        .staff-info {
+            padding: 0 16px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background-color: #111214;
+            border-radius: 0 0 8px 8px; /* Inner radius fix */
+        }
+
+        .staff-card-inner {
+            background-color: var(--bg-secondary); /* Inner rounded container */
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .staff-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-header);
+            line-height: 1.2;
+        }
+        
+        .staff-username {
+            font-size: 0.9rem;
+            color: var(--text-header);
+            opacity: 1;
+            font-weight: 500;
+        }
+
+        .staff-activity {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .activity-header {
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-header);
+            margin-bottom: 4px;
+        }
+        
+        .activity-name {
+            font-size: 0.9rem;
+            color: var(--text-normal);
+            font-weight: 400;
+        }
+        
+        .activity-details {
+            font-size: 0.9rem;
+            color: var(--text-normal);
+        }
+
+        /* --- Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease-out; }
+
+        .modal-content {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            max-width: 480px;
+            width: 100%;
+            position: relative;
+            text-align: center;
+            box-shadow: var(--shadow-high);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover { color: var(--text-normal); }
+
+        .code-block {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            text-align: left;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid #1e1f22;
+            color: var(--text-normal);
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            background-color: var(--brand);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .copy-btn:hover { background-color: var(--brand-hover); }
+
+        /* --- Loading Spinner --- */
+        .loader {
+            border: 4px solid var(--bg-tertiary);
+            border-top: 4px solid var(--brand);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 50px auto;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .pfp-background { display: none; }
+            h1 { font-size: 2.5rem; }
+            .navbar { padding: 0.8rem 1rem; }
+            .staff-grid { flex-direction: column; align-items: center; }
+            .staff-card { width: 100%; max-width: 320px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a class="nav-link active" href="#home">Home</a>
+        <a class="nav-link" href="#staff">Staff</a>
+        <a class="nav-link" href="https://discord.com/invite/userpfp-1129784704267210844" target="_blank">Discord</a>
+    </nav>
+
+    <!-- Background Animation (Home Only) -->
+    <div id="pfp-bg-container" style="display: block;">
+        <div class="pfp-background pfp-bg-left"><div class="pfp-track" id="pfpColumn1"></div></div>
+        <div class="pfp-background pfp-bg-right"><div class="pfp-track" id="pfpColumn2"></div></div>
+    </div>
+
+    <!-- Home View -->
+    <main id="home-view" class="view-container active">
+        <div class="hero">
+            <h1>UserPFP</h1>
+            <p>Use animated profile pictures on Discord — even without Nitro!</p>
+            
+            <h2>How to Request</h2>
+            <div class="steps-container">
+                <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="step-link">1. Join the UserPFP Discord</a>
+                <a href="https://discord.com/channels/1129784704267210844/1162834399801384970" target="_blank" class="step-link">2. Read Server Rules</a>
+                <a href="https://discord.com/channels/1129784704267210844/1162800344603037856" target="_blank" class="step-link">3. Go to #request-here</a>
+                <a href="https://discord.com/channels/1129784704267210844/1162800681409855600" target="_blank" class="step-link">4. Wait for Approval</a>
+            </div>
+
+            <h2>Choose Your Client Mod</h2>
+            <div class="mod-grid" id="modGrid">
+                <!-- Mod buttons generated by JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Staff View -->
+    <main id="staff-view" class="view-container">
+        <h1>Meet the Staff</h1>
+        <p>The team behind UserPFP.</p>
+        <div id="staff-loader" class="loader"></div>
+        <div class="staff-grid" id="staffGrid"></div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="infoModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <h3 id="modalTitle" style="margin-top:0; font-size: 1.5rem; margin-bottom: 0.5rem;">Mod Name</h3>
+            <p id="modalDesc" style="color: var(--text-normal);">Description goes here.</p>
+            <div id="modalCodeArea"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- Redirection Logic ---
+        // 1. Handle legacy /website path (if this file is copied to /website/index.html)
+        if (window.location.pathname.includes('/website')) {
+            const currentHash = window.location.hash || '#home';
+            window.location.replace('/' + currentHash);
+        }
+
+        // --- Routing Logic ---
+        function handleRoute() {
+            // Get hash or default to 'home'
+            let viewName = window.location.hash.replace('#', '') || 'home';
+
+            // Valid routes check
+            if (!['home', 'staff'].includes(viewName)) {
+                viewName = 'home';
+            }
+
+            // Update Nav
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${viewName}`) link.classList.add('active');
+            });
+
+            // Update View visibility
+            document.querySelectorAll('.view-container').forEach(view => {
+                view.classList.remove('active');
+            });
+            const activeView = document.getElementById(`${viewName}-view`);
+            if (activeView) activeView.classList.add('active');
+
+            // Handle background & Lazy Loading
+            const bgContainer = document.getElementById('pfp-bg-container');
+            if (viewName === 'home') {
+                if (bgContainer) bgContainer.style.display = 'block';
+                if (!window.pfpsLoaded) loadPfps();
+            } else {
+                if (bgContainer) bgContainer.style.display = 'none';
+                if (!window.staffLoaded && viewName === 'staff') loadStaff();
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // --- Home Logic (PFP Columns & Mods) ---
+        const modLogos = {
+            equicord: "https://equicord.org/assets/icons/equicord/icon-black.png",
+            vencord: "https://equicord.org/assets/icons/vencord/icon.png",
+            betterdiscord: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7008-a89e-30427975b652",
+            goosecord: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7007-ab73-65dffb4353b8",
+            replugged: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7006-8ac6-8512377d1f58",
+            shelter: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7005-a865-2d3cc2f6b23c",
+            aliucord: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7004-844b-04dbc906256c",
+            vendetta: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7003-8d7d-5e59de0a38d3",
+            bunny: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7002-af09-71777b39c12f",
+            revenge: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7000-94cc-2800ec57cd07",
+            kettu: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7001-ad48-2d37d308f96f",
+        };
+
+        const modData = {
+            equicord: { desc: "Go to Settings → Plugins → Search for 'UserPFP' and turn it on!", code: null, link: null },
+            vencord: { desc: "Vencord only supports the theme. Paste this link into Settings → Themes → Online Themes.", code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css", link: null },
+            betterdiscord: { desc: "Add this line to your CustomCSS or QuickCSS to enable UserPFP.", code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');", link: null },
+            goosecord: { desc: "Add the import line to your Goosecord setup.", code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');", link: null },
+            replugged: { desc: "Install UserPFP from the official plugin store.", code: null, link: "https://replugged.dev/store/dev.WolfPlugs.UserPFP" },
+            shelter: { desc: "Add this plugin link to your Shelter plugins list.", code: "https://spikehd.dev/shelter-plugins/userpfp/", link: "https://spikehd.dev/shelter-plugins/userpfp/" },
+            aliucord: { desc: "Download the plugin file and add it to your Aliucord plugins folder.", code: null, link: "https://github.com/OmegaSunkey/awesomeplugins/raw/builds/UserPFP.zip" },
+            vendetta: { desc: "Add this link to Vendetta in the plugins tab.", code: "https://revenge.nexpid.xyz/userpfp", link: "https://revenge.nexpid.xyz/userpfp" },
+            bunny: { desc: "Add this link to Bunny in the plugins tab.", code: "https://revenge.nexpid.xyz/userpfp", link: "https://revenge.nexpid.xyz/userpfp" },
+            revenge: { desc: "Add this link to Revenge in the plugins tab.", code: "https://revenge.nexpid.xyz/userpfp", link: "https://revenge.nexpid.xyz/userpfp" },
+            kettu: { desc: "Add this link to Kettu in the plugins tab.", code: "https://revenge.nexpid.xyz/userpfp", link: "https://revenge.nexpid.xyz/userpfp" },
+        };
+
+        function initMods() {
+            const grid = document.getElementById('modGrid');
+            Object.entries(modLogos).forEach(([key, url]) => {
+                const btn = document.createElement('div');
+                btn.className = 'mod-button';
+                btn.setAttribute('data-label', key.charAt(0).toUpperCase() + key.slice(1));
+                btn.innerHTML = `<img src="${url}" alt="${key}">`;
+                btn.onclick = () => openModal(key);
+                grid.appendChild(btn);
+            });
+        }
+
+        async function loadPfps() {
+            window.pfpsLoaded = true;
+            let data = null;
+            try {
+                // CHANGED: Fetches from the NEW repo (Yeetov/usrpfpwebsite)
+                const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
+                if (res.ok) {
+                    data = await res.json();
+                } else {
+                    // Force throw if not ok (e.g. 404) to trigger fallback
+                    throw new Error('New repo fetch failed with status: ' + res.status);
+                }
+            } catch (e) {
+                console.warn("Failed to load from new repo, attempting fallback...", e);
+                try {
+                    // Fallback to the original repository
+                    const res = await fetch('https://userpfp.github.io/UserPFP/source/data.json');
+                    if (res.ok) {
+                        data = await res.json();
+                    }
+                } catch (e2) {
+                    console.error("Failed to load PFPs from fallback", e2);
+                }
+            }
+            
+            if (!data) return; // Exit if both fail
+
+            const urls = Object.values(data.avatars || {}).filter(url => 
+                !url.includes("profileBadges") && !url.includes("cdn.discordapp.com/icons/")
+            );
+            
+            // Shuffle
+            for (let i = urls.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [urls[i], urls[j]] = [urls[j], urls[i]];
+            }
+
+            renderColumn(urls.slice(0, 30), 'pfpColumn1');
+            renderColumn(urls.slice(30, 60), 'pfpColumn2');
+        }
+
+        function renderColumn(urls, id) {
+            const container = document.getElementById(id);
+            // Duplicate for smooth loop
+            [...urls, ...urls].forEach(url => {
+                const div = document.createElement('div');
+                div.className = 'pfp-item';
+                div.innerHTML = `<img src="${url}" loading="lazy" onerror="this.parentElement.remove()">`;
+                container.appendChild(div);
+            });
+        }
+
+        // --- Modal Logic ---
+        function openModal(key) {
+            const data = modData[key];
+            document.getElementById('modalTitle').innerText = key.charAt(0).toUpperCase() + key.slice(1);
+            document.getElementById('modalDesc').innerText = data.desc;
+            
+            const codeArea = document.getElementById('modalCodeArea');
+            codeArea.innerHTML = '';
+
+            if (data.code) {
+                codeArea.innerHTML = `
+                    <div class="code-block" id="copyTarget">${data.code}</div>
+                    <button class="copy-btn" onclick="copyText('${data.code}')">Copy Code</button>
+                `;
+            } else if (data.link) {
+                codeArea.innerHTML = `<a href="${data.link}" target="_blank" class="copy-btn" style="text-decoration:none; display:inline-block;">Open Link</a>`;
+            }
+
+            document.getElementById('infoModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').classList.remove('active');
+        }
+
+        function copyText(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            const btn = document.querySelector('.copy-btn');
+            const original = btn.innerText;
+            btn.innerText = "Copied!";
+            btn.style.backgroundColor = "var(--green)";
+            setTimeout(() => {
+                btn.innerText = original;
+                btn.style.backgroundColor = "";
+            }, 2000);
+        }
+
+        // --- Staff Logic ---
+        const staffIds = [
+            "406084422308331522", "789872551731527690", "853550207039832084", 
+            "848339671629299742", "500212086765518858", "250322741406859265", 
+            "929208515883569182", "258731845267619840", "1180778779682033715", 
+            "1124647765075566662", "613725399263739926", "422319200095436800"
+        ];
+
+        // Manual Banner Map (Higher priority than USRBG if set, or we can use USRBG as fallback)
+        // Currently setting manual ones.
+        const manualBannerMap = {
+            "406084422308331522": "https://i.imgur.com/vzyxjz8.gif", 
+            "789872551731527690": "https://i.imgur.com/U3xaMjR.gif",
+            "853550207039832084": "https://i.ibb.co/MBY0qxx/nexpid.gif",
+            "848339671629299742": "https://i.imgur.com/FiRr8Lj.png",
+            "500212086765518858": "https://i.imgur.com/bAuCtgB.png",
+            "250322741406859265": "https://i.imgur.com/mkTL1S8.png",
+            "929208515883569182": "https://i.imgur.com/ZflpQQ3.png",
+            "258731845267619840": "https://i.imgur.com/2mitqtb.png"
+        };
+        
+        const customPfps = {};
+        let usrbgData = null;
+
+        const StatusLabels = { online: "Online", idle: "Idle", dnd: "Do Not Disturb", offline: "Offline" };
+
+        async function fetchCustomPfps() {
+            try {
+                // CHANGED: Fetches from the NEW repo (Yeetov/usrpfpwebsite) with fallback
+                let res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/import.css');
+                if (!res.ok) {
+                    console.warn("Failed to fetch CSS from new repo, falling back...");
+                    res = await fetch('https://raw.githubusercontent.com/UserPFP/UserPFP/main/import.css');
+                }
+                
+                if (!res.ok) throw new Error('Failed to fetch CSS from both sources');
+                const css = await res.text();
+                
+                const regex = /src\^="https:\/\/cdn\.discordapp\.com\/avatars\/(\d+)\/".*?url\(([^)]+)\)/g;
+                let match;
+                while ((match = regex.exec(css)) !== null) {
+                    const id = match[1];
+                    const url = match[2].replace(/['"]/g, ''); 
+                    customPfps[id] = url;
+                }
+            } catch (e) {
+                console.error("Error loading custom PFPs:", e);
+            }
+        }
+
+        async function fetchUsrbg() {
+            try {
+                const res = await fetch("https://usrbg.is-hardly.online/users");
+                if (res.ok) {
+                    usrbgData = await res.json();
+                }
+            } catch (e) {
+                console.error("Failed to fetch USRBG data", e);
+            }
+        }
+
+        function getUsrbgUrl(userId) {
+            if (!usrbgData || !usrbgData.users[userId]) return null;
+            const { endpoint, bucket, prefix, users: { [userId]: etag } } = usrbgData;
+            return `${endpoint}/${bucket}/${prefix}${userId}?${etag}`;
+        }
+
+        async function loadStaff() {
+            window.staffLoaded = true;
+            const loader = document.getElementById('staff-loader');
+            const grid = document.getElementById('staffGrid');
+            
+            try {
+                // Fetch external data concurrently
+                await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
+
+                // Shuffle staff
+                for (let i = staffIds.length - 1; i > 0; i--) {
+                    const r = Math.floor(Math.random() * (i + 1));
+                    [staffIds[i], staffIds[r]] = [staffIds[r], staffIds[i]];
+                }
+
+                // Fetch Lanyard data
+                const userData = {};
+                await Promise.all(staffIds.map(async id => {
+                    try {
+                        const res = await fetch(`https://lanyard.equicord.org/v1/users/${id}`);
+                        const json = await res.json();
+                        if (json.success) userData[id] = json.data;
+                    } catch (e) { console.error(e); }
+                }));
+
+                loader.style.display = 'none';
+                
+                staffIds.forEach(id => {
+                    if (userData[id]) {
+                        grid.innerHTML += createStaffCard(userData[id], id);
+                    }
+                });
+            } catch (e) {
+                loader.style.display = 'none';
+                grid.innerHTML = "<p>Failed to load staff members.</p>";
+            }
+        }
+
+        function createStaffCard(data, id) {
+            const u = data.discord_user;
+            const status = data.discord_status;
+            
+            // Avatar Priority: Custom CSS > Discord Avatar > Default
+            const avatar = customPfps[id] ? customPfps[id] : (u.avatar ? 
+                `https://cdn.discordapp.com/avatars/${id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'webp'}?size=128` : 
+                'https://cdn.discordapp.com/embed/avatars/0.png');
+            
+            // Banner Priority: USRBG > Manual Map > Empty (fallback color)
+            let banner = getUsrbgUrl(id);
+            if (!banner) {
+                banner = manualBannerMap[id] || "";
+            }
+            
+            let activityHtml = '';
+            const activity = data.activities.find(a => a.type !== 4); 
+            const custom = data.activities.find(a => a.type === 4);
+
+            if (status !== 'offline' && activity) {
+                // Formatting Rich Presence Look
+                activityHtml = `
+                    <div class="staff-card-inner">
+                        <div class="activity-header">${['Playing', 'Streaming', 'Listening to', 'Watching', '', 'Competing in'][activity.type] || 'Playing'}</div>
+                        <div class="staff-activity">
+                            <div class="activity-name" style="font-weight: 600; font-size: 0.95rem; color: var(--text-normal);">${activity.name}</div>
+                            ${activity.details ? `<div class="activity-details">${activity.details}</div>` : ''}
+                            ${activity.state ? `<div class="activity-details">${activity.state}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else if (custom && custom.state) {
+                 activityHtml = `
+                    <div class="staff-card-inner">
+                         <div class="activity-header">Custom Status</div>
+                        <div class="activity-details">${custom.state}</div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="staff-card">
+                    <div class="staff-banner" style="${banner ? `background-image: url('${banner}')` : ''}"></div>
+                    <div class="staff-header">
+                        <img class="staff-avatar" src="${avatar}" alt="${u.username}">
+                        <div class="staff-status-wrapper">
+                            <div class="staff-status-dot status-${status}" title="${StatusLabels[status]}"></div>
+                        </div>
+                    </div>
+                    <div class="staff-info">
+                        <div class="staff-name">${u.global_name || u.username}</div>
+                        <div class="staff-username">${u.username}</div>
+                        ${activityHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initMods();
+            
+            // Initial routing
+            handleRoute();
+            
+            // Close modal when clicking outside
+            document.getElementById('infoModal').addEventListener('click', (e) => {
+                if(e.target === document.getElementById('infoModal')) closeModal();
+            });
+
+            // Listen for hash changes
+            window.addEventListener('hashchange', handleRoute);
+        });
+
+    </script>
+</body>
+</html>
