@@ -51,6 +51,9 @@
             --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
             --shadow-md: 0 8px 16px rgba(0,0,0,0.2);
             --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
+
+            /* Dynamic Decoration Scale */
+            --decor-scale: 120%; 
         }
 
         html {
@@ -520,7 +523,7 @@
             min-width: 280px;
             background: var(--bg-deep);
             border-radius: var(--radius-lg);
-            overflow: hidden;
+            overflow: visible; /* Changed from hidden to visible so decorations don't get cut off */
             box-shadow: var(--shadow-md);
             position: relative;
             transition: transform 0.2s, box-shadow 0.2s;
@@ -537,6 +540,7 @@
             background-color: var(--brand);
             background-size: cover;
             background-position: center;
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* Manually rounded corners since card overflow is visible */
         }
 
         .profile-avatar-container {
@@ -554,34 +558,34 @@
             z-index: 10;
         }
 
-        .profile-avatar img {
+        /* TARGETING AVATAR IMAGE SPECIFICALLY to avoid affecting decoration */
+        .profile-avatar img.avatar-img {
             width: 100%; height: 100%;
             border-radius: 50%;
             object-fit: cover;
         }
 
-        .status-badge {
+        /* Decoration Overlay - Dynamic Size via Variable */
+        /* Increased specificity to override generic img rules if any remaining */
+        .profile-avatar img.profile-decoration {
             position: absolute;
-            bottom: 0px; right: 0px;
-            width: 28px; height: 28px;
-            background: var(--bg-deep);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 11;
+            top: 50%;
+            left: 50%;
+            width: var(--decor-scale); 
+            height: var(--decor-scale);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 13; /* Over anything */
+            border-radius: 0; /* Prevent circular cropping */
+            object-fit: contain;
+            border: none;
         }
-        
-        .status-dot { width: 18px; height: 18px; border-radius: 50%; }
-        .status-dot.online { background-color: var(--status-online); }
-        .status-dot.idle { background-color: var(--status-idle); }
-        .status-dot.dnd { background-color: var(--status-dnd); }
-        .status-dot.offline { background-color: var(--status-offline); }
 
         .profile-body {
             margin-top: 50px;
             padding: 16px;
             background: var(--bg-deep);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Manually rounded corners */
         }
 
         .profile-name-container { margin-bottom: 12px; }
@@ -1235,17 +1239,23 @@
                 // Fetch external data concurrently (CSS PFPs, USRBG)
                 await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
 
-                const shuffled = staffIds.sort(() => 0.5 - Math.random());
+                // Sort staff logic: YOUR ID FIRST
+                const myId = "789872551731527690";
+                // Remove myId from array if exists, then unshift it to front
+                const others = staffIds.filter(id => id !== myId);
+                const shuffled = others.sort(() => 0.5 - Math.random());
+                const finalStaffList = [myId, ...shuffled];
 
                 // Create array of fetch promises for each staff user
-                const userPromises = shuffled.map(async id => {
+                const userPromises = finalStaffList.map(async id => {
                     try {
-                        const [lanyardRes, badgesRes] = await Promise.all([
+                        const [lanyardRes, badgesRes, decorRes] = await Promise.all([
                             fetch(`https://lanyard.equicord.org/v1/users/${id}`).then(r => r.json()),
-                            fetch(`https://badges.equicord.org/${id}`).then(r => r.json()).catch(() => null) // Allow badges to fail gracefully
+                            fetch(`https://badges.equicord.org/${id}`).then(r => r.json()).catch(() => null), // Allow badges to fail gracefully
+                            fetch(`https://decor.fieryflames.dev/api/users/${id}`).then(r => r.json()).catch(() => null)
                         ]);
                         
-                        return lanyardRes.success ? { id, data: lanyardRes.data, badges: badgesRes || [] } : null;
+                        return lanyardRes.success ? { id, data: lanyardRes.data, badges: badgesRes || [], decor: decorRes } : null;
                     } catch(e) {
                         return null; 
                     }
@@ -1254,7 +1264,7 @@
                 const results = await Promise.all(userPromises);
                 
                 let html = '';
-                results.forEach(r => { if(r) html += createStaffCard(r.data, r.id, r.badges); });
+                results.forEach(r => { if(r) html += createStaffCard(r.data, r.id, r.badges, r.decor); });
                 loader.style.display = 'none';
                 grid.innerHTML = html;
             } catch(e) {
@@ -1264,7 +1274,7 @@
             }
         }
 
-        function createStaffCard(data, id, badgeData) {
+        function createStaffCard(data, id, badgeData, decorData) {
             const user = data.discord_user;
             const avatar = customPfps[id] || (user.avatar ? `https://cdn.discordapp.com/avatars/${id}/${user.avatar}.${user.avatar.startsWith('a_')?'gif':'webp'}?size=128` : 'https://cdn.discordapp.com/embed/avatars/0.png');
             let banner = getUsrbgUrl(id) || manualBanners[id] || "";
@@ -1275,7 +1285,6 @@
             let badgesHtml = '<div class="badge-chip">Staff</div>';
             
             // Handle Equicord Badges API response structure
-            // API returns object with "badges" array containing { badge: "url", tooltip: "name" }
             if (badgeData && badgeData.badges && Array.isArray(badgeData.badges)) {
                  badgeData.badges.forEach(b => {
                     const imgUrl = b.badge || b.image; // Support "badge" from new API or "image" if format varies
@@ -1285,6 +1294,14 @@
                         badgesHtml += `<img src="${imgUrl}" alt="${name}" class="badge-icon" title="${name}">`;
                     }
                 });
+            }
+
+            // Render Decoration
+            let decorHtml = '';
+            if (decorData && decorData.decorationHash) {
+                const hash = decorData.decorationHash;
+                // Use onerror to fallback from gif to png
+                decorHtml = `<img class="profile-decoration" src="https://decorcdn.fieryflames.dev/${hash}.gif" onerror="this.onerror=null;this.src='https://decorcdn.fieryflames.dev/${hash}.png'" alt="">`;
             }
 
             let activityHtml = '';
@@ -1319,8 +1336,8 @@
                     <div class="badge-container">${badgesHtml}</div>
                     <div class="profile-avatar-container">
                         <div class="profile-avatar">
-                            <img src="${avatar}" alt="${user.username}">
-                            <div class="status-badge"><div class="status-dot ${statusMap[data.discord_status]||'offline'}"></div></div>
+                            <img class="avatar-img" src="${avatar}" alt="${user.username}">
+                            ${decorHtml}
                         </div>
                     </div>
                     <div class="profile-body">
