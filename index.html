@@ -643,24 +643,35 @@
             position: absolute;
             top: 110px; right: 16px;
             display: flex;
-            gap: 6px;
+            gap: 4px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            max-width: 170px; /* Constrain width to force wrapping before hitting avatar */
         }
         
-        .badge {
+        /* Updated badge styles for both images and text chips */
+        .badge-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            cursor: pointer; /* Changed from help to pointer */
+        }
+
+        .badge-chip {
             background: var(--bg-secondary);
-            padding: 4px 8px;
+            padding: 0 6px;
+            height: 22px; /* Match icon height */
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
             color: var(--text-muted);
             border: 1px solid rgba(255,255,255,0.05);
             display: flex;
             align-items: center;
-            gap: 4px;
+            justify-content: center;
         }
-        
-        .badge img { width: 12px; height: 12px; }
 
         /* --- MODAL WIZARD --- */
         .modal-overlay {
@@ -1221,29 +1232,61 @@
             loader.style.display = 'block';
 
             try {
+                // Fetch external data concurrently (CSS PFPs, USRBG)
                 await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
+
                 const shuffled = staffIds.sort(() => 0.5 - Math.random());
-                const results = await Promise.all(shuffled.map(id => 
-                    fetch(`https://lanyard.equicord.org/v1/users/${id}`).then(r=>r.json()).then(d=>d.success?{id,data:d.data}:null).catch(()=>null)
-                ));
+
+                // Create array of fetch promises for each staff user
+                const userPromises = shuffled.map(async id => {
+                    try {
+                        const [lanyardRes, badgesRes] = await Promise.all([
+                            fetch(`https://lanyard.equicord.org/v1/users/${id}`).then(r => r.json()),
+                            fetch(`https://badges.equicord.org/${id}`).then(r => r.json()).catch(() => null) // Allow badges to fail gracefully
+                        ]);
+                        
+                        return lanyardRes.success ? { id, data: lanyardRes.data, badges: badgesRes || [] } : null;
+                    } catch(e) {
+                        return null; 
+                    }
+                });
+
+                const results = await Promise.all(userPromises);
                 
                 let html = '';
-                results.forEach(r => { if(r) html += createStaffCard(r.data, r.id); });
+                results.forEach(r => { if(r) html += createStaffCard(r.data, r.id, r.badges); });
                 loader.style.display = 'none';
                 grid.innerHTML = html;
             } catch(e) {
+                console.error(e);
                 loader.style.display = 'none';
                 grid.innerHTML = '<p style="color:var(--text-muted)">Unable to load staff members.</p>';
             }
         }
 
-        function createStaffCard(data, id) {
+        function createStaffCard(data, id, badgeData) {
             const user = data.discord_user;
             const avatar = customPfps[id] || (user.avatar ? `https://cdn.discordapp.com/avatars/${id}/${user.avatar}.${user.avatar.startsWith('a_')?'gif':'webp'}?size=128` : 'https://cdn.discordapp.com/embed/avatars/0.png');
             let banner = getUsrbgUrl(id) || manualBanners[id] || "";
             const bannerStyle = banner ? `background-image: url('${banner}')` : '';
             const statusMap = { online:'online', idle:'idle', dnd:'dnd', offline:'offline' };
             
+            // Render Badges
+            let badgesHtml = '<div class="badge-chip">Staff</div>';
+            
+            // Handle Equicord Badges API response structure
+            // API returns object with "badges" array containing { badge: "url", tooltip: "name" }
+            if (badgeData && badgeData.badges && Array.isArray(badgeData.badges)) {
+                 badgeData.badges.forEach(b => {
+                    const imgUrl = b.badge || b.image; // Support "badge" from new API or "image" if format varies
+                    const name = b.tooltip || b.name || "Badge";
+                    
+                    if(imgUrl) {
+                        badgesHtml += `<img src="${imgUrl}" alt="${name}" class="badge-icon" title="${name}">`;
+                    }
+                });
+            }
+
             let activityHtml = '';
             const rich = data.activities.find(a => a.type !== 4); 
             const custom = data.activities.find(a => a.type === 4); 
@@ -1273,7 +1316,7 @@
             return `
                 <div class="profile-card">
                     <div class="profile-banner" style="${bannerStyle}"></div>
-                    <div class="badge-container"><div class="badge">Staff</div></div>
+                    <div class="badge-container">${badgesHtml}</div>
                     <div class="profile-avatar-container">
                         <div class="profile-avatar">
                             <img src="${avatar}" alt="${user.username}">
