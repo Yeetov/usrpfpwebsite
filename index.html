@@ -639,8 +639,26 @@
             flex: 1;
         }
 
-        .activity-title { font-weight: 600; color: var(--text-normal); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 0.9rem; }
-        .activity-subtitle { color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+        /* FIX: Removed cropping/truncation */
+        .activity-title { 
+            font-weight: 600; 
+            color: var(--text-normal); 
+            font-size: 0.9rem; 
+        }
+        
+        /* FIX: Removed cropping/truncation */
+        .activity-subtitle { 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+        }
+        
+        .emoji-inline {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+            vertical-align: sub;
+            margin-right: 4px;
+        }
 
         /* BADGES */
         .badge-container {
@@ -1279,7 +1297,7 @@
             const avatar = customPfps[id] || (user.avatar ? `https://cdn.discordapp.com/avatars/${id}/${user.avatar}.${user.avatar.startsWith('a_')?'gif':'webp'}?size=128` : 'https://cdn.discordapp.com/embed/avatars/0.png');
             let banner = getUsrbgUrl(id) || manualBanners[id] || "";
             const bannerStyle = banner ? `background-image: url('${banner}')` : '';
-            const statusMap = { online:'online', idle:'idle', dnd:'dnd', offline:'offline' };
+            // const statusMap = { online:'online', idle:'idle', dnd:'dnd', offline:'offline' };
             
             // Render Badges
             let badgesHtml = '<div class="badge-chip">Staff</div>';
@@ -1309,13 +1327,23 @@
             const custom = data.activities.find(a => a.type === 4); 
             
             if (rich) {
-                const iconId = rich.assets?.large_image;
-                const iconUrl = iconId ? (iconId.startsWith('mp:') ? `https://media.discordapp.net/${iconId.replace('mp:','')}` : `https://cdn.discordapp.com/app-assets/${rich.application_id}/${iconId}.png`) : null;
+                // Improved Icon Logic
+                let iconUrl = null;
+                if(rich.assets && rich.assets.large_image) {
+                    const img = rich.assets.large_image;
+                    if(img.startsWith('mp:')) iconUrl = `https://media.discordapp.net/${img.replace('mp:','')}`;
+                    else if(img.startsWith('spotify:')) iconUrl = `https://i.scdn.co/image/${img.replace('spotify:','')}`;
+                    else iconUrl = `https://cdn.discordapp.com/app-assets/${rich.application_id}/${img}.png`;
+                } else if (rich.application_id) {
+                     // Fallback for games without rich assets but have app ID (Game Detection)
+                     iconUrl = `https://dcdn.dstn.to/app-icons/${rich.application_id}`;
+                }
+
                 activityHtml = `
                     <div class="activity-card">
                         <div class="activity-header">Playing</div>
                         <div class="activity-row">
-                            ${iconUrl ? `<img src="${iconUrl}" class="activity-icon">` : ''}
+                            ${iconUrl ? `<img src="${iconUrl}" class="activity-icon" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Xbox_one_logo.svg/512px-Xbox_one_logo.svg.png'">` : ''}
                             <div class="activity-info">
                                 <div class="activity-title">${rich.name}</div>
                                 <div class="activity-subtitle">${rich.details || rich.state || ''}</div>
@@ -1323,10 +1351,24 @@
                         </div>
                     </div>`;
             } else if (custom && custom.state) {
+                 // Custom Status Logic
+                 let emojiHtml = '';
+                 if(custom.emoji) {
+                     if(custom.emoji.id) {
+                         emojiHtml = `<img src="https://cdn.discordapp.com/emojis/${custom.emoji.id}.webp?size=44" class="emoji-inline" alt="${custom.emoji.name}">`;
+                     } else {
+                         emojiHtml = `<span>${custom.emoji.name}</span>`;
+                     }
+                 }
+                 
                  activityHtml = `
                     <div class="activity-card">
                         <div class="activity-header">Custom Status</div>
-                        <div class="activity-row"><div class="activity-info"><div class="activity-subtitle">${custom.emoji ? custom.emoji.name+' ' : ''}${custom.state}</div></div></div>
+                        <div class="activity-row">
+                             <div class="activity-info">
+                                <div class="activity-subtitle">${emojiHtml} ${custom.state}</div>
+                            </div>
+                        </div>
                     </div>`;
             }
 
