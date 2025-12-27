@@ -1,1502 +1,829 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth dark">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#22c55e">
-    <meta name="description" content="Unlock animated profile pictures on Discord client-side without Nitro.">
-    <title>UserPFP | Animated Profiles</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Team Gelatofish: A team of passionate Discord users building unofficial customization tools including animated avatars, badges, and decorations.">
+    <title>Team Gelatofish | Sweetening Discord</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Quicksand', 'sans-serif'],
+                        heading: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        gelato: {
+                            blue: '#a3cef1',
+                            pink: '#f3c1e8',
+                            dark: '#0f0c29', 
+                            berry: '#302b63',
+                        },
+                        brand: {
+                            userpfp: '#00ff9d',
+                            blackbox: '#ffffff',
+                            oba: '#f97316',
+                            decor: '#a855f7',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'wiggle': 'wiggle 3s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                        'pulse-glow': 'pulse-glow 4s infinite',
+                        'gradient-x': 'gradient-x 15s ease infinite',
+                        'swim-footer': 'swimFooter 3s ease-in-out infinite',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '200% 0' },
+                            '100%': { backgroundPosition: '-200% 0' }
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: 0.5, transform: 'scale(1)' },
+                            '50%': { opacity: 0.8, transform: 'scale(1.1)' },
+                        },
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        },
+                        swimFooter: {
+                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                            '25%': { transform: 'translateY(-2px) rotate(-5deg)' },
+                            '75%': { transform: 'translateY(2px) rotate(5deg)' },
+                        },
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(-25%)', animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)' },
+                            '50%': { transform: 'translateY(0)', animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* --- CSS VARIABLES & RESET --- */
-        :root {
-            /* Modern Dark Theme Palette */
-            --bg-deep: #111214;         /* App Background */
-            --bg-primary: #313338;      /* Chat/Main Background */
-            --bg-secondary: #2b2d31;    /* Cards/Sidebar */
-            --bg-tertiary: #1e1f22;     /* Inputs/Nav */
-            --bg-floating: #18191c;     /* Modals/Dropdowns */
-            
-            --modifier-hover: rgba(255, 255, 255, 0.05);
-            --modifier-active: rgba(255, 255, 255, 0.1);
-            
-            --text-normal: #dbdee1;
-            --text-muted: #949ba4;
-            --text-header: #f2f3f5;
-            --text-link: #00a8fc;
-            
-            /* Brand Colors */
-            --brand: #22c55e;
-            --brand-hover: #16a34a;
-            --brand-gradient: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
-            
-            /* Status Colors */
-            --status-online: #23a559;
-            --status-idle: #f0b232;
-            --status-dnd: #f23f43;
-            --status-offline: #80848e;
-
-            --font-primary: 'Inter', 'gg sans', system-ui, sans-serif;
-            --font-code: 'Roboto Mono', monospace;
-
-            --radius-md: 8px;
-            --radius-lg: 16px;
-            --radius-xl: 24px;
-            
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-            --shadow-md: 0 8px 16px rgba(0,0,0,0.2);
-            --shadow-lg: 0 16px 32px rgba(0,0,0,0.3);
-
-            /* Dynamic Decoration Scale */
-            --decor-scale: 120%; 
+        /* --- Base Accessibility & Settings --- */
+        :focus-visible {
+            outline: 3px solid #f472b6; /* Pink-400 */
+            outline-offset: 2px;
+            border-radius: 4px;
         }
 
-        html {
-            scroll-behavior: smooth;
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
         }
 
-        * { box-sizing: border-box; }
-        
+        /* --- Backgrounds --- */
         body {
-            margin: 0;
-            padding: 0;
-            font-family: var(--font-primary);
-            background-color: var(--bg-primary);
-            color: var(--text-normal);
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
+            transition: background 0.5s ease, color 0.5s ease;
+            /* Default Light Mode Background (Ocean/Pastel) */
+            background: linear-gradient(135deg, #e0f2fe 0%, #ffe4e6 50%, #fae8ff 100%);
             min-height: 100vh;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Dark Mode Override (Midnight Galaxy) */
+        html.dark body {
+            background: radial-gradient(circle at 50% -20%, #4c1d95 0%, #1e1b4b 40%, #020617 100%);
+            background-attachment: fixed;
+        }
+
+        /* --- Glassmorphism --- */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            transition: all 0.3s ease;
+        }
+        .dark .glass-panel {
+            /* Darker, purpler glass for better text readability */
+            background: rgba(15, 10, 30, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+        
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2);
+        }
+        .dark .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px -10px rgba(139, 92, 246, 0.2); /* Purple glow on hover */
+        }
+
+        /* --- Utilities --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Stagger delays for grid items */
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* --- Fish Animations --- */
+        .fish-wrapper {
+            position: absolute;
+            will-change: transform;
+            pointer-events: none;
+        }
+        
+        /* Basic Swim Animation */
+        @keyframes swimRight {
+            from { transform: translateX(-100vw); }
+            to { transform: translateX(100vw); }
+        }
+        @keyframes swimLeft {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100vw); }
+        }
+
+        /* Shimmer Button */
+        .btn-shimmer {
+            background: linear-gradient(110deg, #4f46e5 45%, #818cf8 50%, #4f46e5 55%);
+            background-size: 250% 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .btn-shimmer:hover::after {
+            left: 100%;
+        }
+        .btn-shimmer:hover {
+            animation: shimmer 1.5s linear infinite;
+        }
+
+        /* --- Text with Conformed Sprinkles --- */
+        .animate-gradient-text {
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='50' height='50' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='8' height='3' rx='1.5' fill='%23f472b6' transform='rotate(45 14 11.5)'/%3E%3Crect x='30' y='5' width='8' height='3' rx='1.5' fill='%23facc15' transform='rotate(-20 34 6.5)'/%3E%3Crect x='10' y='35' width='8' height='3' rx='1.5' fill='%2360a5fa' transform='rotate(80 14 36.5)'/%3E%3Crect x='35' y='30' width='8' height='3' rx='1.5' fill='%23ffffff' transform='rotate(10 39 31.5)'/%3E%3C/svg%3E"),
+                linear-gradient(to right, #ec4899, #a855f7, #4f46e5); 
+            background-size: 40px 40px, 200% auto;
+            background-repeat: repeat, no-repeat;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient-x 4s linear infinite;
+        }
+        
+        .dark .animate-gradient-text {
+             background-image: 
+                url("data:image/svg+xml,%3Csvg width='50' height='50' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='8' height='3' rx='1.5' fill='%23f472b6' transform='rotate(45 14 11.5)'/%3E%3Crect x='30' y='5' width='8' height='3' rx='1.5' fill='%23facc15' transform='rotate(-20 34 6.5)'/%3E%3Crect x='10' y='35' width='8' height='3' rx='1.5' fill='%2360a5fa' transform='rotate(80 14 36.5)'/%3E%3Crect x='35' y='30' width='8' height='3' rx='1.5' fill='%23ffffff' transform='rotate(10 39 31.5)'/%3E%3C/svg%3E"),
+                linear-gradient(to right, #e879f9, #c084fc, #22d3ee); 
+        }
+
+        /* --- Bubble Background --- */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            animation: rise infinite linear;
+            pointer-events: none;
+            bottom: -50px;
+        }
+        html.dark .bubble {
+            background: radial-gradient(circle at 30% 30%, rgba(167, 139, 250, 0.4), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+        }
+
+        /* --- "Think Fast" Flashbang Transition (Dark -> Light) --- */
+        #flashbang-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #flashbang-overlay.active {
+            pointer-events: all;
+        }
+
+        /* The Grenade flying in */
+        @keyframes grenadeThrow {
+            0% { transform: translate(100vw, 100vh) rotate(0deg) scale(0.5); opacity: 1; }
+            70% { transform: translate(0, 0) rotate(-720deg) scale(1.5); opacity: 1; }
+            90% { transform: translate(0, 0) rotate(-720deg) scale(1.5); opacity: 1; }
+            100% { transform: translate(0, 0) rotate(-720deg) scale(1.5); opacity: 0; }
+        }
+
+        /* The Pin flying off */
+        @keyframes pinFly {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            20% { transform: translate(50px, -50px) rotate(45deg); opacity: 1; }
+            100% { transform: translate(300px, -300px) rotate(180deg); opacity: 0; }
+        }
+
+        /* "THINK FAST" Text pop */
+        @keyframes textPop {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.2); opacity: 1; } 
+            85% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* The White Flash */
+        @keyframes pureWhiteFlash {
+            0% { opacity: 0; }
+            20% { opacity: 0; } /* Wait for grenade */
+            22% { opacity: 1; } /* BOOM */
+            65% { opacity: 1; } /* Hold White */
+            100% { opacity: 0; } /* Fade out */
+        }
+
+        .run-flashbang #grenade-group {
+            animation: grenadeThrow 1s ease-out forwards;
+        }
+        .run-flashbang #grenade-pin {
+            animation: pinFly 1s ease-out forwards;
+        }
+        .run-flashbang #think-fast-text {
+            animation: textPop 1s ease-out forwards;
+        }
+        .run-flashbang #flash-screen {
+            animation: pureWhiteFlash 4s ease-out forwards;
+        }
+
+        /* --- Deep Dive Transition (Light -> Dark) --- */
+        #deep-dive-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            pointer-events: none;
+            transform: translateY(100%);
+            background: linear-gradient(to top, #0f0c29, #302b63, #24243e);
+        }
+        
+        @keyframes diveWave {
+            0% { transform: translateY(100%); }
+            40% { transform: translateY(0%); } /* Full Coverage */
+            60% { transform: translateY(0%); } /* Pause */
+            100% { transform: translateY(-100%); } /* Move up and away */
+        }
+
+        .run-dive-animation {
+            animation: diveWave 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 10px; height: 10px; background-color: var(--bg-deep); }
-        ::-webkit-scrollbar-thumb { background-color: var(--bg-secondary); border-radius: 5px; border: 2px solid var(--bg-deep); }
-        ::-webkit-scrollbar-track { background-color: var(--bg-deep); }
-
-        /* Typography */
-        h1, h2, h3, h4 { color: var(--text-header); margin: 0; }
-        
-        h1 {
-            font-weight: 800;
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            letter-spacing: -0.03em;
-            line-height: 1.1;
-        }
-
-        h2 {
-            font-weight: 700;
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            letter-spacing: -0.02em;
-        }
-
-        a { text-decoration: none; color: inherit; transition: 0.2s; }
-        p { color: var(--text-muted); font-size: 1.125rem; line-height: 1.6; }
-
-        /* --- ANIMATIONS --- */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes scrollColumn { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-        
-        /* Dropdown Animation */
-        @keyframes dropdownEnter {
-            0% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.95); }
-            100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-        }
-
-        /* --- UI COMPONENTS --- */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 14px 32px;
-            border-radius: 28px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-            cursor: pointer;
-            border: none;
-            position: relative;
-            overflow: hidden;
-            line-height: 1; /* Fix vertical alignment */
-            height: 48px; /* Fixed height for consistency */
-            text-decoration: none;
-        }
-
-        .btn-brand {
-            background: var(--brand);
-            color: #fff;
-            box-shadow: 0 8px 16px rgba(34, 197, 94, 0.2);
-        }
-        .btn-brand:hover { 
-            background: var(--brand-hover); 
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(34, 197, 94, 0.3);
-        }
-        .btn-brand:active { transform: translateY(0); }
-
-        .btn-secondary {
-            background-color: var(--bg-secondary);
-            color: var(--text-header);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .btn-secondary:hover { 
-            background-color: var(--modifier-hover);
-            border-color: rgba(255,255,255,0.1);
-        }
-
-        /* --- DROPDOWN --- */
-        .dropdown { 
-            position: relative; 
-            display: inline-flex; 
-            vertical-align: middle;
-            width: 100%; /* Fill step card width */
-        }
-        
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: calc(100% + 12px); /* Spacing */
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-floating);
-            width: 100%; /* Match parent width */
-            min-width: 240px;
-            max-width: 90vw;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.08);
-            z-index: 10000;
-            overflow: hidden;
-            flex-direction: column;
-            transform-origin: top center;
-        }
-        .dropdown-menu.show { 
-            display: flex; 
-            animation: dropdownEnter 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        
-        /* Arrow tip for dropdown */
-        .dropdown-menu::before {
-            content: '';
-            position: absolute;
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-            width: 12px;
-            height: 12px;
-            background: var(--bg-floating); /* Matches bg */
-            border-left: 1px solid rgba(255,255,255,0.08);
-            border-top: 1px solid rgba(255,255,255,0.08);
-            z-index: 0;
-        }
-        
-        .dropdown-header {
-            padding: 12px 16px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            font-weight: 800;
-            color: var(--text-muted);
-            background: rgba(0,0,0,0.2);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: relative;
-            z-index: 1;
-        }
-
-        .dropdown-search-wrapper {
-            padding: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: relative;
-            z-index: 1;
-            background: var(--bg-floating);
-        }
-
-        .dropdown-search {
-            width: 100%;
-            background: var(--bg-deep);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 8px 12px;
-            border-radius: 6px;
-            color: var(--text-normal);
-            font-family: var(--font-primary);
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .dropdown-search:focus {
-            border-color: var(--brand);
-        }
-
-        .dropdown-list-container {
-            max-height: 250px;
-            overflow-y: auto;
-            position: relative;
-            z-index: 1;
-            background: var(--bg-floating);
-        }
-
-        .dropdown-item {
-            padding: 12px 16px;
-            color: var(--text-normal);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.15s ease;
-            font-size: 0.95rem;
-            font-weight: 500;
-            text-decoration: none;
-            border-left: 3px solid transparent;
-        }
-        .dropdown-item:hover { 
-            background: var(--modifier-hover); 
-            color: #fff; 
-            border-left-color: var(--brand);
-            padding-left: 19px; 
-        }
-        .dropdown-item img { width: 24px; height: 24px; border-radius: 6px; object-fit: contain; }
-
-        /* --- NAVBAR --- */
-        .navbar {
-            background-color: rgba(17, 18, 20, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 1.25rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .nav-inner {
-            width: 100%;
-            max-width: 1200px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .nav-brand {
-            font-weight: 900;
-            font-size: 1.5rem;
-            color: var(--text-header);
-            display: flex;
-            align-items: center;
-            gap: 0;
-            letter-spacing: -0.02em;
-        }
-
-        .nav-brand span { color: var(--brand); }
-
-        .nav-links {
-            display: flex;
-            gap: 2.5rem;
-            align-items: center;
-            background: rgba(0,0,0,0.2);
-            padding: 0.5rem 1.5rem;
-            border-radius: 2rem;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .nav-link {
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: color 0.2s ease;
-        }
-        .nav-link:hover { color: var(--text-header); }
-        .nav-link.active { color: var(--brand); }
-
-        /* --- BACKGROUND --- */
-        .bg-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .pfp-column {
-            position: absolute;
-            width: 80px;
-            top: -10px; bottom: -10px;
-            opacity: 0.08; 
-            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
-        }
-        
-        .col-left { left: 5%; }
-        .col-right { right: 5%; }
-
-        .pfp-track {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            animation: scrollColumn 80s linear infinite;
-        }
-
-        .bg-pfp {
-            width: 80px; height: 80px;
-            border-radius: 20px; /* Slight squircle for BG */
-            background: var(--bg-tertiary);
-            object-fit: cover;
-            filter: grayscale(100%) contrast(1.2);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* --- MAIN VIEWS --- */
-        .view-container {
-            display: none;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 6rem 1.5rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .view-container.active { display: block; animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-
-        /* HOME HERO */
-        .hero-section {
-            text-align: center;
-            margin-bottom: 6rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-            position: relative;
-        }
-
-        .hero-title h1 {
-            color: var(--text-header);
-        }
-
-        .hero-title span { 
-            background: var(--brand-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: inline-block;
-        }
-        
-        .hero-desc {
-            max-width: 640px;
-            margin: 0 auto;
-            font-size: 1.25rem;
-            color: var(--text-muted);
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center; 
-            position: relative; 
-        }
-
-        /* STEPS GRID (Modern Cards) */
-        .steps-section { 
-            margin-bottom: 6rem; 
-            position: relative; 
-            z-index: 20; /* FIX: Ensure dropdown is above mod grid */
-        }
-        
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .step-card {
-            background: var(--bg-secondary);
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(255,255,255,0.03);
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            transition: transform 0.2s, background-color 0.2s;
-            position: relative;
-            /* overflow: hidden; Removed to allow dropdown */
-        }
-
-        .step-card:hover {
-            transform: translateY(-5px);
-            background-color: #2e3035;
-            border-color: rgba(255,255,255,0.08);
-        }
-
-        .step-num {
-            font-family: var(--font-code);
-            color: var(--brand);
-            font-size: 3rem;
-            font-weight: 700;
-            opacity: 0.2;
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-        }
-
-        .step-card h3 { font-size: 1.25rem; z-index: 1; }
-        .step-card p { font-size: 1rem; z-index: 1; color: var(--text-muted); }
-        .step-card a { color: var(--brand); font-weight: 600; }
-        .step-card a:hover { text-decoration: underline; }
-
-        /* MODS GRID */
-        .mod-section { text-align: center; }
-        
-        .mod-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 1.5rem;
-            justify-items: center;
-            max-width: 800px;
-            margin: 3rem auto 0;
-        }
-
-        .mod-btn {
-            width: 96px; height: 96px;
-            background: var(--bg-secondary);
-            border-radius: 24px; /* Squircle */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            box-shadow: var(--shadow-sm);
-            border: 2px solid transparent;
-        }
-
-        .mod-btn:hover {
-            background: var(--brand);
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
-        }
-
-        .mod-btn img {
-            width: 52px; height: 52px;
-            object-fit: contain;
-            border-radius: 12px;
-            pointer-events: none;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
-        }
-
-        .mod-label {
-            position: absolute;
-            bottom: -32px;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            font-weight: 600;
-            opacity: 0;
-            transform: translateY(-5px);
-            transition: 0.2s;
-            white-space: nowrap;
-        }
-        .mod-btn:hover .mod-label { opacity: 1; transform: translateY(0); color: var(--text-normal); }
-
-        /* STAFF CARDS (Discord Profile Style) */
-        .staff-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 24px;
-        }
-
-        .profile-card {
-            width: 100%; 
-            max-width: 320px; /* Fluid width for phones */
-            min-width: 280px;
-            background: var(--bg-deep);
-            border-radius: var(--radius-lg);
-            overflow: visible; /* Changed from hidden to visible so decorations don't get cut off */
-            box-shadow: var(--shadow-md);
-            position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid rgba(255,255,255,0.03);
-        }
-        
-        .profile-card:hover { 
-            transform: translateY(-6px); 
-            box-shadow: var(--shadow-lg); 
-        }
-
-        .profile-banner {
-            height: 105px;
-            background-color: var(--brand);
-            background-size: cover;
-            background-position: center;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* Manually rounded corners since card overflow is visible */
-        }
-
-        .profile-avatar-container {
-            position: absolute;
-            top: 61px;
-            left: 16px;
-        }
-
-        .profile-avatar {
-            width: 88px; height: 88px;
-            border-radius: 50%;
-            border: 6px solid var(--bg-deep);
-            background-color: var(--bg-deep);
-            position: relative;
-            z-index: 10;
-        }
-
-        /* TARGETING AVATAR IMAGE SPECIFICALLY to avoid affecting decoration */
-        .profile-avatar img.avatar-img {
-            width: 100%; height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        /* Decoration Overlay - Dynamic Size via Variable */
-        /* Increased specificity to override generic img rules if any remaining */
-        .profile-avatar img.profile-decoration {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: var(--decor-scale); 
-            height: var(--decor-scale);
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            z-index: 13; /* Over anything */
-            border-radius: 0; /* Prevent circular cropping */
-            object-fit: contain;
-            border: none;
-        }
-
-        .profile-body {
-            margin-top: 50px;
-            padding: 16px;
-            background: var(--bg-deep);
-            border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Manually rounded corners */
-        }
-
-        .profile-name-container { margin-bottom: 12px; }
-
-        .profile-displayname {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-header);
-            line-height: 1.2;
-        }
-
-        .profile-username {
-            font-size: 0.9rem;
-            color: var(--text-header);
-            font-weight: 500;
-        }
-
-        /* Activity Card */
-        .activity-card {
-            background-color: var(--bg-primary); 
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 12px;
-            font-size: 0.85rem;
-        }
-
-        .activity-header {
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            color: var(--text-header);
-            margin-bottom: 8px;
-        }
-
-        .activity-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .activity-icon {
-            width: 36px; height: 36px;
-            border-radius: 4px;
-            object-fit: cover;
-        }
-
-        .activity-info {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex: 1;
-        }
-
-        /* FIX: Removed cropping/truncation */
-        .activity-title { 
-            font-weight: 600; 
-            color: var(--text-normal); 
-            font-size: 0.9rem; 
-        }
-        
-        /* FIX: Removed cropping/truncation */
-        .activity-subtitle { 
-            color: var(--text-muted); 
-            font-size: 0.85rem; 
-        }
-        
-        .emoji-inline {
-            width: 18px;
-            height: 18px;
-            object-fit: contain;
-            vertical-align: sub;
-            margin-right: 4px;
-        }
-
-        /* BADGES */
-        .badge-container {
-            position: absolute;
-            top: 110px; right: 16px;
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            max-width: 170px; /* Constrain width to force wrapping before hitting avatar */
-        }
-        
-        /* Updated badge styles for both images and text chips */
-        .badge-icon {
-            width: 22px;
-            height: 22px;
-            object-fit: contain;
-            cursor: pointer; /* Changed from help to pointer */
-        }
-
-        .badge-chip {
-            background: var(--bg-secondary);
-            padding: 0 6px;
-            height: 22px; /* Match icon height */
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            border: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* --- MODAL WIZARD --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 2000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.2s;
-            backdrop-filter: blur(8px);
-        }
-
-        .modal-overlay.open { display: flex; opacity: 1; }
-
-        .modal-content {
-            background: var(--bg-primary);
-            padding: 0; 
-            border-radius: var(--radius-lg);
-            width: 100%;
-            max-width: 550px;
-            transform: scale(0.95) translateY(10px);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255,255,255,0.08);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            text-align: center; /* Center everything */
-        }
-
-        .modal-overlay.open .modal-content { transform: scale(1) translateY(0); }
-
-        /* Wizard Header */
-        .modal-header-bg {
-            background: var(--bg-deep);
-            padding: 2rem;
-            display: flex;
-            flex-direction: column; /* Stack logo and text */
-            align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            position: relative;
-        }
-
-        .modal-client-icon {
-            width: 80px; height: 80px;
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            padding: 12px;
-            object-fit: contain;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .modal-title-wrap h3 { margin: 0; font-size: 1.75rem; color: var(--text-header); }
-        .modal-title-wrap p { margin: 0.25rem 0 0; font-size: 1rem; color: var(--text-muted); }
-
-        .close-modal {
-            position: absolute;
-            top: 1rem; right: 1rem;
-            background: rgba(0,0,0,0.2);
-            border-radius: 50%;
-            width: 32px; height: 32px;
-            display: flex; align-items: center; justify-content: center;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            line-height: 1;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .close-modal:hover { background: var(--bg-modifier-hover); color: var(--text-header); }
-
-        /* Wizard Body */
-        .modal-body {
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 200px; /* Avoid layout shifts */
-        }
-
-        .wizard-step {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-            animation: fadeIn 0.3s ease;
-            width: 100%;
-        }
-        .wizard-step.active { display: flex; }
-
-        .wizard-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: var(--text-normal);
-            max-width: 400px;
-        }
-
-        /* Code Editor Look */
-        .code-window {
-            background: #1e1f22; 
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.05);
-            overflow: hidden;
-            width: 100%;
-            text-align: left;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .code-header {
-            background: #2b2d31;
-            padding: 8px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(0,0,0,0.2);
-        }
-        .code-lang { font-family: var(--font-code); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-        .copy-code-btn {
-            background: transparent; border: none; color: var(--brand); font-weight: 600; 
-            font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px;
-        }
-        
-        .code-content {
-            padding: 16px;
-            font-family: var(--font-code);
-            font-size: 0.85rem;
-            color: #d4d4d4;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        .btn-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            color: var(--brand);
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.2s;
-        }
-        .btn-link:hover { background: var(--modifier-hover); color: #fff; transform: translateY(-2px); }
-
-        /* Wizard Nav Buttons */
-        .wizard-nav {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            width: 100%;
-            justify-content: center;
-        }
-        .btn-wizard {
-            padding: 10px 24px;
-            border-radius: 24px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .btn-prev { background: transparent; color: var(--text-muted); }
-        .btn-prev:hover { color: var(--text-normal); background: var(--modifier-hover); }
-        .btn-next { background: var(--brand); color: #fff; }
-        .btn-next:hover { background: var(--brand-hover); }
-
-        /* FOOTER */
-        .footer {
-            margin-top: auto;
-            padding: 4rem 2rem;
-            background: var(--bg-deep);
-            text-align: center;
-            border-top: 1px solid var(--bg-tertiary);
-        }
-        .footer-links { display: flex; justify-content: center; gap: 2.5rem; margin-bottom: 2rem; font-weight: 600; }
-        .footer-links a { color: var(--text-muted); }
-        .footer-links a:hover { color: var(--brand); }
-        .footer-copy { color: var(--text-muted); font-size: 0.9rem; opacity: 0.7; }
-
-        /* Loader */
-        .loader {
-            width: 48px; height: 48px;
-            border: 4px solid var(--bg-tertiary);
-            border-top-color: var(--brand);
-            border-radius: 50%;
-            animation: spin 1s infinite linear;
-            margin: 60px auto;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .bg-container { display: none; }
-            .navbar { padding: 1rem 1.25rem; }
-            .nav-inner { flex-direction: column; gap: 1rem; }
-            .nav-brand { margin-bottom: 0.25rem; }
-            .nav-links { 
-                width: 100%; 
-                justify-content: center; 
-                gap: 1.5rem; 
-                background: transparent; 
-                border: none; 
-                padding: 0; 
-                flex-wrap: wrap; 
-            }
-            .nav-cta { 
-                display: block; 
-                width: 100%; 
-                text-align: center;
-            }
-            h1 { font-size: 2.5rem; }
-            .hero-section { margin-bottom: 4rem; padding: 0 1rem; }
-            .hero-desc { font-size: 1.1rem; }
-            .steps-grid { grid-template-columns: 1fr; }
-            .staff-card { width: 100%; max-width: 320px; }
-            .modal-content { padding: 0; }
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.5); }
     </style>
 </head>
-<body>
+<body class="text-gray-900 dark:text-gray-100 min-h-screen relative overflow-x-hidden selection:bg-pink-300 selection:text-pink-900">
 
-    <!-- ANIMATED BACKGROUND -->
-    <div class="bg-container" id="bgAnim">
-        <div class="pfp-column col-left"><div class="pfp-track" id="track1"></div></div>
-        <div class="pfp-column col-right"><div class="pfp-track" id="track2"></div></div>
+    <!-- Think Fast Flashbang Overlay (Dark -> Light) -->
+    <div id="flashbang-overlay">
+        <!-- White Flash Screen (Covers everything) -->
+        <div id="flash-screen" class="absolute inset-0 bg-white opacity-0 pointer-events-none z-50"></div>
+        
+        <!-- Content Container -->
+        <div class="relative z-40 flex flex-col items-center justify-center">
+            <h2 id="think-fast-text" class="text-7xl md:text-9xl font-heading font-black text-white italic tracking-tighter drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] opacity-0 absolute mb-60 z-50 whitespace-nowrap stroke-black" style="-webkit-text-stroke: 3px black;">
+                THINK FAST!
+            </h2>
+            
+            <!-- Grenade SVG -->
+            <svg id="grenade-svg" viewBox="0 0 140 140" class="w-48 h-64 opacity-1 filter drop-shadow-2xl overflow-visible">
+                <g id="grenade-group" class="opacity-0">
+                    <!-- Body -->
+                    <rect x="40" y="40" width="60" height="80" rx="10" fill="#4b5563" stroke="#1f2937" stroke-width="3"/>
+                    <!-- Ridges -->
+                    <path d="M40 60 L 100 60 M 40 80 L 100 80 M 40 100 L 100 100" stroke="#1f2937" stroke-width="2"/>
+                    <!-- Top mechanism -->
+                    <rect x="55" y="20" width="30" height="20" fill="#374151" stroke="#1f2937" stroke-width="2"/>
+                    <rect x="65" y="10" width="10" height="15" fill="#9ca3af"/>
+                    <!-- Lever -->
+                    <path d="M60 25 L 30 35 L 30 100" stroke="#d1d5db" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <!-- Red Stripe -->
+                    <rect x="40" y="50" width="60" height="5" fill="#ef4444" opacity="0.8"/>
+                    
+                    <!-- Detached Pin flying away -->
+                    <g id="grenade-pin" style="transform-origin: center;">
+                        <circle cx="100" cy="30" r="10" fill="none" stroke="#d1d5db" stroke-width="3"/>
+                        <path d="M90 30 L 80 30" stroke="#d1d5db" stroke-width="3"/>
+                    </g>
+                </g>
+            </svg>
+        </div>
     </div>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="nav-inner">
-            <a href="#home" class="nav-brand">
-                <span>User</span>PFP
-            </a>
-            <div class="nav-links">
-                <a href="#home" class="nav-link active">Home</a>
-                <a href="#staff" class="nav-link">Staff</a>
-                <a href="https://github.com/UserPFP/UserPFP" target="_blank" class="nav-link">GitHub</a>
-                <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="nav-link">Discord</a>
+    <!-- Deep Dive Transition Overlay (Light -> Dark) -->
+    <div id="deep-dive-overlay" class="flex flex-col items-center justify-center text-white">
+        <div class="animate-bounce mb-4">
+            <svg class="w-16 h-16 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+        <h2 class="text-3xl font-heading font-bold tracking-widest uppercase">Going Deep</h2>
+    </div>
+
+    <!-- Accessibility: Skip Link -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[100] px-4 py-2 bg-white text-indigo-600 font-bold rounded-lg shadow-lg">
+        Skip to main content
+    </a>
+
+    <!-- Aquarium Container (Fixed Background) -->
+    <div id="aquarium" class="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-30 dark:opacity-60 transition-opacity duration-1000">
+        <!-- Fish and Bubbles will be injected here via JS -->
+    </div>
+    
+    <!-- Separate Bubble Container for better layering -->
+    <div id="bubble-container" class="fixed inset-0 z-0 pointer-events-none overflow-hidden"></div>
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 transition-all duration-300 border-b border-transparent" id="navbar" role="navigation" aria-label="Main Navigation">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3 group focus:rounded-lg" aria-label="Team Gelatofish Home">
+                    <div class="w-10 h-10 bg-white/90 dark:bg-indigo-950/50 rounded-full flex items-center justify-center backdrop-blur-md shadow-sm group-hover:rotate-12 transition-transform duration-500 border border-white/40 dark:border-white/10">
+                       <svg viewBox="0 0 100 100" class="w-6 h-6 text-pink-500 dark:text-fuchsia-400" aria-hidden="true" fill="currentColor">
+                           <path d="M50 20 C30 20 15 35 15 55 C15 75 30 90 50 90 C70 90 85 75 85 55 C85 35 70 20 50 20 Z" opacity="0.9"/>
+                           <path d="M85 55 L98 40 L98 70 Z" />
+                           <circle cx="35" cy="45" r="5" fill="white"/>
+                           <path d="M50 15 L30 35 L70 35 Z" class="text-yellow-400 dark:text-violet-500" fill="currentColor" />
+                       </svg>
+                    </div>
+                    <span class="font-heading font-bold text-xl tracking-wide group-hover:text-pink-600 dark:group-hover:text-fuchsia-300 transition-colors">Gelatofish</span>
+                </a>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-4">
+                    <button id="theme-toggle" class="p-2.5 rounded-full glass-panel hover:bg-white dark:hover:bg-white/10 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 group relative overflow-hidden" aria-label="Toggle Dark Mode">
+                        <!-- Sun -->
+                        <svg class="w-5 h-5 hidden dark:block text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.5)] group-hover:rotate-90 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <!-- Moon -->
+                        <svg class="w-5 h-5 block dark:hidden text-indigo-700 group-hover:-rotate-12 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                    <a href="https://discord.com" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center px-6 py-2.5 btn-shimmer text-white font-bold rounded-full shadow-lg shadow-indigo-500/30 text-sm transform hover:-translate-y-0.5 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-900">
+                        Join Discord
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- HOME VIEW -->
-    <main id="home-view" class="view-container active">
-        <section class="hero-section">
-            <div class="hero-title">
-                <h1>Unlock Animated<br><span>Profile Pictures</span></h1>
-            </div>
-            <p class="hero-desc">
-                UserPFP is a client modification that unlocks animated profile pictures on Discord without Nitro. It also supports API images and GIFs (such as random duck or cat images), visible to all other users of the mod.
+    <!-- Main Content -->
+    <main id="main-content" class="relative z-10 pt-32 pb-20 px-4 sm:px-6 overflow-hidden focus:outline-none" tabindex="-1">
+        
+        <!-- Hero Section -->
+        <section class="max-w-5xl mx-auto text-center mb-24 reveal active relative py-20" aria-labelledby="hero-title">
+            
+            <!-- Super Glow Effect -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-pink-400/20 dark:bg-fuchsia-600/15 rounded-full blur-[100px] -z-10 animate-pulse-glow"></div>
+            
+            <h1 id="hero-title" class="font-heading text-6xl sm:text-7xl md:text-8xl font-bold mb-8 text-gray-900 dark:text-white drop-shadow-sm tracking-tight leading-tight">
+                Team <br class="sm:hidden" />
+                <span class="animate-gradient-text" data-text="Gelatofish">Gelatofish</span>
+            </h1>
+            
+            <p class="text-xl md:text-3xl font-bold text-gray-700 dark:text-gray-100 max-w-3xl mx-auto leading-relaxed mb-6">
+                A team of people who use Discord, making it sweeter for everyone.
             </p>
-            <div class="hero-buttons">
-                <a href="#steps" class="btn btn-brand">Get Started</a>
-                <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="btn btn-secondary">Join Server</a>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
+                <a href="https://discord.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-8 py-4 btn-shimmer text-white font-bold rounded-full shadow-xl hover:shadow-indigo-500/40 text-lg transition-all transform hover:-translate-y-1">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.419 0 1.334-.946 2.418-2.157 2.418z"/></svg>
+                    Join Discord
+                </a>
+            </div>
+
+            <!-- Scroll Down Indicator -->
+            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 animate-bounce-subtle opacity-70">
+                <svg class="w-8 h-8 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
             </div>
         </section>
 
-        <section id="steps" class="steps-section">
-            <h2 style="text-align:center;">How It Works</h2>
-            <div class="steps-grid">
-                <div class="step-card">
-                    <div class="step-num">01</div>
-                    <h3>Join the Community</h3>
-                    <p>Join the <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank">Official Discord Server</a> to submit requests for animated PFPs or dynamic links. Support is also available here.</p>
+        <!-- Features Grid -->
+        <section class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 mb-32" aria-label="Our Features">
+            
+            <div class="glass-panel rounded-3xl p-8 md:p-10 reveal border-t-4 border-pink-400 dark:border-fuchsia-500 hover:transform hover:-translate-y-1 transition-transform duration-300">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="p-3.5 bg-pink-100 dark:bg-fuchsia-900/40 rounded-2xl text-pink-600 dark:text-fuchsia-200">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h2 class="font-heading text-2xl font-bold text-gray-900 dark:text-white">Our Mission</h2>
                 </div>
-                <div class="step-card">
-                    <div class="step-num">02</div>
-                    <h3>Submit Request</h3>
-                    <p>Upload your GIF or link in <code>#request-here</code>. If accepted, our GitHub bot hosts it automatically. Restart your client after ~5 mins to see changes!</p>
+                <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                    Team Gelatofish is a team of passionate Discord users. We believe customization shouldn't be locked behind a paywall, so we foster community creativity by building tools that allow users to express themselves freely.
+                </p>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-8 md:p-10 reveal delay-100 border-t-4 border-indigo-400 dark:border-cyan-500 hover:transform hover:-translate-y-1 transition-transform duration-300">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="p-3.5 bg-indigo-100 dark:bg-cyan-900/40 rounded-2xl text-indigo-600 dark:text-cyan-200">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <h2 class="font-heading text-2xl font-bold text-gray-900 dark:text-white">What We Offer</h2>
                 </div>
-                <div class="step-card">
-                    <div class="step-num">03</div>
-                    <h3>Install</h3>
-                    <p>Select your preferred client to view specific installation instructions.</p>
-                    <div class="dropdown" style="width: 100%; margin-top: auto;">
-                        <button class="btn btn-secondary" style="width:100%;" onclick="toggleDropdown(event)">Choose Client</button>
-                        <div class="dropdown-menu" id="clientDropdown">
-                            <!-- Populated by JS -->
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 mt-1 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        <span class="text-gray-800 dark:text-gray-200 font-medium">Animated profile pictures & dynamic avatars</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 mt-1 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        <span class="text-gray-800 dark:text-gray-200 font-medium">Custom, non-official badges for engagement</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="w-5 h-5 mt-1 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        <span class="text-gray-800 dark:text-gray-200 font-medium">Free client-side decorations & banners</span>
+                    </li>
+                </ul>
+            </div>
+
+        </section>
+
+        <!-- Partners Section -->
+        <section class="max-w-7xl mx-auto mb-20 reveal" aria-labelledby="partners-title">
+            <div class="text-center mb-12">
+                <h3 id="partners-title" class="font-heading text-4xl font-bold mb-4 text-gray-900 dark:text-white">Our Ecosystem</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">Collaborating with the best to bring you more.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+                
+                <!-- Partner: UserPFP -->
+                <a href="https://userpfp.vercel.app/" target="_blank" rel="noopener noreferrer" class="group relative overflow-hidden rounded-3xl block h-full focus:ring-4 focus:ring-brand-userpfp/50 outline-none reveal">
+                    <div class="absolute inset-0 bg-[#1a1a1a] border border-gray-800 transition-colors"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-[#00ff9d]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-6 flex flex-col items-center h-full text-center transition-transform duration-300 group-hover:-translate-y-1">
+                        <div class="w-16 h-16 rounded-2xl bg-[#1a1a1a] border-2 border-[#00ff9d] mb-4 flex items-center justify-center shadow-[0_0_15px_rgba(0,255,157,0.3)] group-hover:scale-110 transition-transform overflow-hidden">
+                            <img src="https://i.ibb.co/Hf59TtBn/fd22f045065a5eacd0f87b33cf77f00f.webp" alt="UserPFP Logo" class="w-full h-full object-cover">
                         </div>
+                        <h4 class="font-heading text-xl font-bold text-white mb-2">UserPFP</h4>
+                        <p class="text-sm text-gray-300 group-hover:text-white transition-colors mb-4">The dark-mode focused hub for profile customization.</p>
+                        <div class="mt-auto px-3 py-1 text-xs font-bold uppercase text-[#00ff9d] bg-[#00ff9d]/10 rounded-full border border-[#00ff9d]/20">Partner</div>
+                    </div>
+                </a>
+
+                <!-- Partner: Blackbox -->
+                <div class="group relative overflow-hidden rounded-3xl block h-full reveal delay-100">
+                    <div class="absolute inset-0 glass-panel"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-6 flex flex-col items-center h-full text-center transition-transform duration-300 group-hover:-translate-y-1">
+                        <div class="w-16 h-16 rounded-2xl bg-gray-900 text-white mb-4 flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h4 class="font-heading text-xl font-bold text-gray-900 dark:text-white mb-2">Blackbox</h4>
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4 font-medium">Powering <span class="font-bold">UserBG</span>. Free custom banners for everyone.</p>
+                    </div>
+                </div>
+
+                <!-- Partner: Obaworkshop -->
+                <div class="group relative overflow-hidden rounded-3xl block h-full reveal delay-200">
+                    <div class="absolute inset-0 glass-panel"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-6 flex flex-col items-center h-full text-center transition-transform duration-300 group-hover:-translate-y-1">
+                        <div class="w-16 h-16 rounded-2xl bg-orange-500 text-white mb-4 flex items-center justify-center shadow-lg group-hover:-rotate-6 transition-transform">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                        </div>
+                        <h4 class="font-heading text-xl font-bold text-gray-900 dark:text-white mb-2">Obaworkshop</h4>
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4 font-medium">Unique <span class="font-bold">custom badges</span>. Show off your engagement.</p>
+                    </div>
+                </div>
+
+                <!-- Partner: Decor -->
+                <div class="group relative overflow-hidden rounded-3xl block h-full reveal delay-300">
+                    <div class="absolute inset-0 glass-panel"></div>
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative p-6 flex flex-col items-center h-full text-center transition-transform duration-300 group-hover:-translate-y-1">
+                        <div class="w-16 h-16 rounded-2xl bg-purple-500 text-white mb-4 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+                        </div>
+                        <h4 class="font-heading text-xl font-bold text-gray-900 dark:text-white mb-2">Decor</h4>
+                        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4 font-medium">Stunning <span class="font-bold">avatar decorations</span> available for free.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Spread the Love (Embeds) -->
+        <section class="max-w-6xl mx-auto mb-32 px-4 reveal" aria-labelledby="embeds-title">
+            <div class="text-center mb-10">
+                <h3 id="embeds-title" class="font-heading text-3xl font-bold mb-4 text-gray-900 dark:text-white">Spread the Love</h3>
+                <p class="text-gray-600 dark:text-gray-400">Show your support with these embeddable badges.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Light Badge -->
+                <div class="glass-panel p-8 rounded-3xl flex flex-col items-center relative overflow-hidden">
+                    <h4 class="font-heading text-lg font-bold text-gray-700 dark:text-gray-200 mb-4">Light Mode Badge</h4>
+                    <div class="bg-gray-100 p-6 rounded-xl mb-6 w-full flex justify-center border border-gray-200 shadow-inner">
+                        <!-- Preview Badge -->
+                        <a href="https://gelatofish.vercel.app/" target="_blank" class="inline-flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-2 shadow-sm hover:scale-105 transition-transform" style="text-decoration:none;">
+                            <svg width="24" height="15" viewBox="0 0 100 60" fill="#ec4899" style="flex-shrink:0;">
+                                <path d="M70 30 C 50 10, 20 10, 10 30 C 20 50, 50 50, 70 30 Z M 70 30 L 90 10 L 90 50 Z" />
+                                <circle cx="25" cy="25" r="3" fill="white" opacity="0.8"/>
+                            </svg>
+                            <span style="color:#1f2937; font-weight:bold; font-size:12px; font-family:sans-serif;">Team Gelatofish Partner</span>
+                        </a>
+                    </div>
+                    <div class="relative w-full">
+                        <textarea id="code-light" readonly class="w-full h-24 bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-xs font-mono text-gray-600 dark:text-gray-400 focus:ring-2 focus:ring-pink-400 outline-none resize-none" onclick="this.select()"><a href="https://gelatofish.vercel.app/" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;background:#ffffff;border:1px solid #e5e7eb;border-radius:99px;padding:8px 16px;font-family:sans-serif;box-shadow:0 2px 5px rgba(0,0,0,0.05);transition:transform 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"><svg width="24" height="24" viewBox="0 0 100 60" fill="#ec4899" style="flex-shrink:0"><path d="M70 30 C 50 10, 20 10, 10 30 C 20 50, 50 50, 70 30 Z M 70 30 L 90 10 L 90 50 Z"/><circle cx="25" cy="25" r="3" fill="white" opacity="0.8"/></svg><span style="color:#1f2937;font-weight:bold;font-size:14px">Team Gelatofish Partner</span></a></textarea>
+                        <button onclick="copyCode('code-light')" class="absolute top-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-md shadow-sm hover:text-pink-500 transition-colors" title="Copy Code">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dark Badge -->
+                <div class="glass-panel p-8 rounded-3xl flex flex-col items-center relative overflow-hidden">
+                    <h4 class="font-heading text-lg font-bold text-gray-700 dark:text-gray-200 mb-4">Dark Mode Badge</h4>
+                    <div class="bg-gray-800 p-6 rounded-xl mb-6 w-full flex justify-center border border-gray-700 shadow-inner">
+                        <!-- Preview Badge -->
+                        <a href="https://gelatofish.vercel.app/" target="_blank" class="inline-flex items-center gap-2 bg-gray-900 border border-gray-700 rounded-full px-4 py-2 shadow-sm hover:scale-105 transition-transform" style="text-decoration:none;">
+                            <svg width="24" height="15" viewBox="0 0 100 60" fill="#f472b6" style="flex-shrink:0;">
+                                <path d="M70 30 C 50 10, 20 10, 10 30 C 20 50, 50 50, 70 30 Z M 70 30 L 90 10 L 90 50 Z" />
+                                <circle cx="25" cy="25" r="3" fill="white" opacity="0.8"/>
+                            </svg>
+                            <span style="color:#ffffff; font-weight:bold; font-size:12px; font-family:sans-serif;">Team Gelatofish Partner</span>
+                        </a>
+                    </div>
+                    <div class="relative w-full">
+                        <textarea id="code-dark" readonly class="w-full h-24 bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-xs font-mono text-gray-600 dark:text-gray-400 focus:ring-2 focus:ring-indigo-400 outline-none resize-none" onclick="this.select()"><a href="https://gelatofish.vercel.app/" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;background:#1f2937;border:1px solid #374151;border-radius:99px;padding:8px 16px;font-family:sans-serif;box-shadow:0 4px 6px rgba(0,0,0,0.1);transition:transform 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"><svg width="24" height="24" viewBox="0 0 100 60" fill="#f472b6" style="flex-shrink:0"><path d="M70 30 C 50 10, 20 10, 10 30 C 20 50, 50 50, 70 30 Z M 70 30 L 90 10 L 90 50 Z"/><circle cx="25" cy="25" r="3" fill="white" opacity="0.8"/></svg><span style="color:#ffffff;font-weight:bold;font-size:14px">Team Gelatofish Partner</span></a></textarea>
+                        <button onclick="copyCode('code-dark')" class="absolute top-2 right-2 p-1.5 bg-white dark:bg-gray-800 rounded-md shadow-sm hover:text-indigo-500 transition-colors" title="Copy Code">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        </button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="mod-section">
-            <h2>Supported Clients</h2>
-            <p style="margin-bottom: 2rem;">Click an icon to view installation instructions.</p>
-            <div class="mod-grid" id="modGrid">
-                <!-- Javascript will populate this -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 glass-panel mt-12 border-t border-white/20">
+        <div class="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <!-- Cute SVG Fish in Footer -->
+                <svg class="w-8 h-8 text-pink-500 animate-swim-footer" viewBox="0 0 100 60" fill="currentColor">
+                    <path d="M70 30 C 50 10, 20 10, 10 30 C 20 50, 50 50, 70 30 Z M 70 30 L 90 10 L 90 50 Z" />
+                    <circle cx="25" cy="25" r="3" fill="white" opacity="0.8"/>
+                </svg>
+                <p class="text-sm text-gray-700 dark:text-gray-400 font-bold">
+                    &copy; <span id="year">2025</span> Team Gelatofish. Unofficial & Sweet.
+                </p>
             </div>
-        </section>
-    </main>
-
-    <!-- STAFF VIEW -->
-    <main id="staff-view" class="view-container">
-        <div style="text-align:center; margin-bottom: 5rem;">
-            <h1>Meet The Team</h1>
-            <p>The developers and staff making UserPFP possible.</p>
-        </div>
-        <div id="staffLoader" class="loader"></div>
-        <div class="staff-grid" id="staffGrid">
-            <!-- Javascript will populate this -->
-        </div>
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-links">
-            <a href="https://github.com/UserPFP/UserPFP" target="_blank">Source Code</a>
-            <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank">Support</a>
-        </div>
-        <div class="footer-copy">
-            &copy; 2025 UserPFP. Not affiliated with Discord Inc.
+            <nav class="flex flex-wrap justify-center gap-6" aria-label="Footer Navigation">
+                <a href="https://discord.com" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-300 transition-colors font-bold text-sm">Discord</a>
+            </nav>
         </div>
     </footer>
 
-    <!-- MODAL -->
-    <div class="modal-overlay" id="infoModal">
-        <div class="modal-content">
-            <!-- Header with Logo -->
-            <div class="modal-header-bg">
-                <img id="modalClientIcon" class="modal-client-icon" src="" alt="Client">
-                <div class="modal-title-wrap">
-                    <h3 id="modalTitle">Mod Name</h3>
-                    <p>Installation Wizard</p>
-                </div>
-                <button class="close-modal" onclick="closeModal()">×</button>
-            </div>
-            
-            <!-- Body -->
-            <div class="modal-body" id="modalBody">
-                <!-- Injected via JS -->
-            </div>
-        </div>
-    </div>
+    <!-- Back to Top Button -->
+    <button id="back-to-top" aria-label="Back to top" class="fixed bottom-6 right-6 p-3 rounded-full bg-indigo-600 text-white shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
 
-    <!-- MAIN SCRIPT -->
     <script>
-        // --- CONFIGURATION ---
-        const modData = {
-            equicord: { 
-                logo: "https://equicord.org/assets/icons/equicord/icon-black.png",
-                desc: "Equicord includes a plugin by default, go to Settings > Plugins > Search for UserPFP and turn the plugin on!",
-                code: null 
-            },
-            vencord: { 
-                logo: "https://equicord.org/assets/icons/vencord/icon.png",
-                desc: "Vencord only supports using the Theme for now, copy this link and paste it into Settings > Themes > Online Themes",
-                code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css" 
-            },
-            betterdiscord: { 
-                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7008-a89e-30427975b652",
-                title: "Web-Based / BetterDiscord",
-                desc: "To use UserPFP on any web-based client, simply add the following line to the top of your CustomCSS/QuickCSS file. Note: The CSS/Theme implementation is not recommended if other options are available.",
-                code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');" 
-            },
-            replugged: {
-                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7006-8ac6-8512377d1f58",
-                desc: "You can install the plugin from the official plugin store",
-                link: "https://replugged.dev/store/dev.WolfPlugs.UserPFP"
-            },
-            aliucord: {
-                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7004-844b-04dbc906256c",
-                desc: "You can download the plugin file from this link",
-                link: "https://github.com/OmegaSunkey/awesomeplugins/raw/builds/UserPFP.zip"
-            },
-            vendetta: {
-                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7003-8d7d-5e59de0a38d3",
-                desc: "Copy this link and add it to your plugins",
-                link: "https://revenge.nexpid.xyz/userpfp"
-            },
-             shelter: { 
-                 logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7005-a865-2d3cc2f6b23c",
-                 desc: "Add this link to your plugins", 
-                 link: "https://spikehd.dev/shelter-plugins/userpfp/" 
-            },
-            bunny: {
-                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7002-af09-71777b39c12f",
-                desc: "All of these are based on the same system, simply copy this link and add it to your plugins",
-                link: "https://revenge.nexpid.xyz/userpfp"
-            },
-            revenge: {
-                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7000-94cc-2800ec57cd07",
-                desc: "All of these are based on the same system, simply copy this link and add it to your plugins",
-                link: "https://revenge.nexpid.xyz/userpfp"
-            },
-            kettu: {
-                logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7001-ad48-2d37d308f96f",
-                desc: "All of these are based on the same system, simply copy this link and add it to your plugins",
-                link: "https://revenge.nexpid.xyz/userpfp"
-            }
-        };
-
-        const staffIds = [
-            "406084422308331522", "789872551731527690", "853550207039832084", 
-            "848339671629299742", "500212086765518858", "250322741406859265", 
-            "929208515883569182", "258731845267619840", "1180778779682033715", 
-            "1124647765075566662", "613725399263739926", "422319200095436800"
-        ];
-
-        const manualBanners = {
-            "406084422308331522": "https://i.imgur.com/vzyxjz8.gif", 
-            "789872551731527690": "https://i.imgur.com/U3xaMjR.gif",
-            "853550207039832084": "https://i.ibb.co/MBY0qxx/nexpid.gif",
-            "848339671629299742": "https://i.imgur.com/FiRr8Lj.png",
-            "500212086765518858": "https://i.imgur.com/bAuCtgB.png",
-            "250322741406859265": "https://i.imgur.com/mkTL1S8.png",
-            "929208515883569182": "https://i.imgur.com/ZflpQQ3.png",
-            "258731845267619840": "https://i.imgur.com/2mitqtb.png"
-        };
-        
-        // State
-        const customPfps = {};
-        let usrbgData = null;
-        let currentWizardStep = 0;
-        let wizardSteps = [];
-
-        // --- CORE LOGIC ---
-
-        function init() {
-            renderMods();
-            renderDropdown();
-            handleRoute();
-            window.addEventListener('hashchange', handleRoute);
-            if(window.innerWidth > 768) loadBackgroundPfps();
-            document.getElementById('infoModal').addEventListener('click', (e) => {
-                if(e.target.id === 'infoModal') closeModal();
-            });
-            window.addEventListener('click', () => {
-                const menu = document.getElementById('clientDropdown');
-                if(menu && menu.classList.contains('show')) menu.classList.remove('show');
-            });
-            if (window.location.pathname.includes('/website')) {
-                const currentHash = window.location.hash || '#home';
-                window.location.replace('/' + currentHash);
-            }
-        }
-
-        function handleRoute() {
-            let viewName = window.location.hash.replace('#', '') || 'home';
-            if (!['home', 'staff'].includes(viewName)) viewName = 'home';
-            
-            // Smooth scroll for anchors, otherwise jump
-            if(viewName !== 'home') window.scrollTo(0,0);
-
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${viewName}`) link.classList.add('active');
-            });
-
-            document.querySelectorAll('.view-container').forEach(view => view.classList.remove('active'));
-            document.getElementById(`${viewName}-view`).classList.add('active');
-
-            const bgContainer = document.getElementById('bgAnim');
-            if(viewName === 'home') {
-                if(bgContainer) bgContainer.style.display = 'block';
-            } else if (viewName === 'staff') {
-                if(bgContainer) bgContainer.style.display = 'none';
-                if(!window.staffLoaded) loadStaff();
-            }
-            
-            // Scroll top instantly for view changes (ignore smooth scroll css)
-            if(viewName !== 'home') window.scrollTo({ top: 0, behavior: 'instant' });
-        }
-
-        // --- DATA FETCHERS ---
-        async function fetchCustomPfps() {
-            try {
-                let res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/import.css');
-                if (!res.ok) res = await fetch('https://raw.githubusercontent.com/UserPFP/UserPFP/main/import.css');
-                if (!res.ok) throw new Error('Failed');
-                const css = await res.text();
-                const regex = /src\^="https:\/\/cdn\.discordapp\.com\/avatars\/(\d+)\/".*?url\(([^)]+)\)/g;
-                let match;
-                while ((match = regex.exec(css)) !== null) {
-                    customPfps[match[1]] = match[2].replace(/['"]/g, ''); 
-                }
-            } catch (e) { console.error(e); }
-        }
-
-        async function fetchUsrbg() {
-            try {
-                const res = await fetch("https://usrbg.is-hardly.online/users");
-                if (res.ok) usrbgData = await res.json();
-            } catch (e) { console.error(e); }
-        }
-
-        function getUsrbgUrl(userId) {
-            if (!usrbgData || !usrbgData.users[userId]) return null;
-            const { endpoint, bucket, prefix, users: { [userId]: etag } } = usrbgData;
-            return `${endpoint}/${bucket}/${prefix}${userId}?${etag}`;
-        }
-
-        // --- UI RENDERERS ---
-        function renderMods() {
-            const grid = document.getElementById('modGrid');
-            Object.entries(modData).forEach(([key, data]) => {
-                const btn = document.createElement('div');
-                btn.className = 'mod-btn';
-                btn.innerHTML = `
-                    <img src="${data.logo}" alt="${key}">
-                    <span class="mod-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                `;
-                btn.onclick = () => openModal(key, data);
-                grid.appendChild(btn);
+        // --- Copy Code Function ---
+        function copyCode(elementId) {
+            const copyText = document.getElementById(elementId);
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); /* For mobile devices */
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                // Could add a toast notification here
+                const btn = copyText.nextElementSibling;
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = '<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                }, 2000);
             });
         }
 
-        function renderDropdown() {
-            const menu = document.getElementById('clientDropdown');
-            if(!menu) return;
-            menu.innerHTML = `
-                <div class="dropdown-header">Select Client</div>
-                <div class="dropdown-search-wrapper">
-                    <input type="text" id="clientSearch" class="dropdown-search" placeholder="Search..." oninput="filterDropdown()">
-                </div>
-                <div id="dropdownList" class="dropdown-list-container"></div>
-            `;
-            const list = document.getElementById('dropdownList');
-            Object.entries(modData).forEach(([key, data]) => {
-                const item = document.createElement('div');
-                item.className = 'dropdown-item';
-                item.setAttribute('data-name', key); 
-                item.onclick = () => {
-                    document.getElementById('clientDropdown').classList.remove('show');
-                    setTimeout(() => openModal(key, data), 200);
-                };
-                item.innerHTML = `<img src="${data.logo}" alt="${key}"> ${key.charAt(0).toUpperCase() + key.slice(1)}`;
-                list.appendChild(item);
-            });
-        }
+        // --- Fish Generation & Parallax ---
+        const aquarium = document.getElementById('aquarium');
+        const fishCount = 15;
+        const fishColors = ['#f472b6', '#a78bfa', '#22d3ee', '#fbbf24'];
 
-        function filterDropdown() {
-            const filter = document.getElementById('clientSearch').value.toLowerCase();
-            document.querySelectorAll('.dropdown-item').forEach(item => {
-                item.style.display = item.getAttribute('data-name').toLowerCase().includes(filter) ? "flex" : "none";
-            });
-        }
-
-        function toggleDropdown(e) {
-            if(e) e.stopPropagation();
-            const menu = document.getElementById('clientDropdown');
-            menu.classList.toggle('show');
-            if(menu.classList.contains('show')) setTimeout(() => document.getElementById('clientSearch').focus(), 100);
-        }
-
-        // --- STAFF LOGIC ---
-        async function loadStaff() {
-            window.staffLoaded = true;
-            const grid = document.getElementById('staffGrid');
-            const loader = document.getElementById('staffLoader');
-            grid.innerHTML = ''; 
-            loader.style.display = 'block';
-
-            try {
-                // Fetch external data concurrently (CSS PFPs, USRBG)
-                await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
-
-                // Sort staff logic: YOUR ID FIRST
-                const myId = "789872551731527690";
-                // Remove myId from array if exists, then unshift it to front
-                const others = staffIds.filter(id => id !== myId);
-                const shuffled = others.sort(() => 0.5 - Math.random());
-                const finalStaffList = [myId, ...shuffled];
-
-                // Create array of fetch promises for each staff user
-                const userPromises = finalStaffList.map(async id => {
-                    try {
-                        const [lanyardRes, badgesRes, decorRes] = await Promise.all([
-                            fetch(`https://lanyard.equicord.org/v1/users/${id}`).then(r => r.json()),
-                            fetch(`https://badges.equicord.org/${id}`).then(r => r.json()).catch(() => null), // Allow badges to fail gracefully
-                            fetch(`https://decor.fieryflames.dev/api/users/${id}`).then(r => r.json()).catch(() => null)
-                        ]);
-                        
-                        return lanyardRes.success ? { id, data: lanyardRes.data, badges: badgesRes || [], decor: decorRes } : null;
-                    } catch(e) {
-                        return null; 
-                    }
-                });
-
-                const results = await Promise.all(userPromises);
+        // Initial setup for aquarium fish
+        function setupAquarium() {
+            aquarium.innerHTML = '';
+            for(let i=0; i<fishCount; i++) {
+                const container = document.createElement('div');
+                container.className = 'absolute';
+                container.style.top = `${Math.random() * 90 + 5}%`;
+                container.style.opacity = Math.random() * 0.4 + 0.1;
+                // Store speed for parallax
+                container.dataset.speed = Math.random() * 0.8 + 0.2;
                 
-                let html = '';
-                results.forEach(r => { if(r) html += createStaffCard(r.data, r.id, r.badges, r.decor); });
-                loader.style.display = 'none';
-                grid.innerHTML = html;
-            } catch(e) {
-                console.error(e);
-                loader.style.display = 'none';
-                grid.innerHTML = '<p style="color:var(--text-muted)">Unable to load staff members.</p>';
+                const swimmer = document.createElement('div');
+                const size = Math.random() * 30 + 20;
+                const color = fishColors[Math.floor(Math.random() * fishColors.length)];
+                const direction = Math.random() > 0.5 ? 'right' : 'left';
+                const duration = Math.random() * 20 + 20;
+                
+                swimmer.style.width = `${size}px`;
+                swimmer.style.height = `${size * 0.6}px`;
+                
+                const scaleX = direction === 'left' ? 1 : -1;
+
+                swimmer.innerHTML = `
+                    <svg viewBox="0 0 100 60" fill="${color}" style="transform: scaleX(${scaleX})">
+                        <path d="M70 30 C 50 10, 20 10, 10 30 C 20 50, 50 50, 70 30 Z M 70 30 L 90 10 L 90 50 Z" />
+                        <circle cx="25" cy="25" r="3" fill="white" opacity="0.8"/>
+                    </svg>
+                `;
+                
+                // Animation class
+                swimmer.style.animation = direction === 'right' 
+                    ? `swimRight ${duration}s linear infinite` 
+                    : `swimLeft ${duration}s linear infinite`;
+                swimmer.style.animationDelay = `${Math.random() * -20}s`;
+                
+                container.appendChild(swimmer);
+                aquarium.appendChild(container);
             }
         }
+        setupAquarium();
 
-        function createStaffCard(data, id, badgeData, decorData) {
-            const user = data.discord_user;
-            const avatar = customPfps[id] || (user.avatar ? `https://cdn.discordapp.com/avatars/${id}/${user.avatar}.${user.avatar.startsWith('a_')?'gif':'webp'}?size=128` : 'https://cdn.discordapp.com/embed/avatars/0.png');
-            let banner = getUsrbgUrl(id) || manualBanners[id] || "";
-            const bannerStyle = banner ? `background-image: url('${banner}')` : '';
-            // const statusMap = { online:'online', idle:'idle', dnd:'dnd', offline:'offline' };
+        // --- Bubble Generation (Re-added) ---
+        const bubbleContainer = document.getElementById('bubble-container');
+        const bubbleCount = 20;
+
+        function setupBubbles() {
+            bubbleContainer.innerHTML = '';
+            for(let i=0; i<bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                const size = Math.floor(Math.random() * 30 + 10) + 'px'; // Varied sizes
+                bubble.style.width = size;
+                bubble.style.height = size;
+                bubble.style.left = Math.floor(Math.random() * 100) + '%';
+                bubble.style.animationDuration = (Math.random() * 15 + 10) + 's'; // 10-25s duration
+                bubble.style.animationDelay = (Math.random() * 10) + 's'; // Delay for staggering
+                bubbleContainer.appendChild(bubble);
+            }
+        }
+        setupBubbles();
+
+        // Optimized Parallax Loop
+        function animateParallax() {
+            const scrollY = window.scrollY;
+            const containers = aquarium.children;
+            for(let i=0; i<containers.length; i++) {
+                const speed = parseFloat(containers[i].dataset.speed);
+                // Moving the container LEFT creates the illusion of the camera panning RIGHT
+                containers[i].style.transform = `translateX(${-scrollY * speed}px)`;
+            }
+            requestAnimationFrame(animateParallax);
+        }
+        animateParallax();
+
+
+        // --- Submarine & Theme Logic ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const subOverlay = document.getElementById('flashbang-overlay');
+        const deepDiveOverlay = document.getElementById('deep-dive-overlay');
+
+        // Force Dark Mode default
+        if (localStorage.theme === 'light') {
+            html.classList.remove('dark');
+        } else {
+            html.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = html.classList.contains('dark');
             
-            // Render Badges
-            let badgesHtml = '<div class="badge-chip">Staff</div>';
+            if (isDark) {
+                // Switching to LIGHT MODE -> Trigger Flashbang
+                subOverlay.classList.add('active', 'run-flashbang');
+                
+                // Flash hits full white at roughly 0.9s. 
+                // We switch theme at 1.0s to ensure it's hidden.
+                
+                setTimeout(() => {
+                    html.classList.remove('dark');
+                    localStorage.theme = 'light';
+                }, 1000); 
+
+                // Cleanup after total animation (4s)
+                setTimeout(() => {
+                    subOverlay.classList.remove('active', 'run-flashbang');
+                }, 4000);
+                
+            } else {
+                // Switching to DARK MODE -> Trigger Deep Dive
+                deepDiveOverlay.classList.add('run-dive-animation');
+                
+                // Wait for the wave to cover screen (approx 1s)
+                setTimeout(() => {
+                    html.classList.add('dark');
+                    localStorage.theme = 'dark';
+                }, 1000);
+
+                // Cleanup
+                setTimeout(() => {
+                    deepDiveOverlay.classList.remove('run-dive-animation');
+                }, 2500);
+            }
+        });
+
+        // --- Dynamic Footer Year ---
+        const yearSpan = document.getElementById('year');
+        const currentYear = new Date().getFullYear();
+        yearSpan.textContent = currentYear > 2025 ? `2025-${currentYear}` : '2025';
+
+        // --- Navbar Scroll Effect ---
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            const isScrolled = window.scrollY > 20;
+            const navClasses = ['bg-white/90', 'dark:bg-[#0f0c29]/90', 'backdrop-blur-xl', 'shadow-lg', 'border-white/20'];
             
-            // Handle Equicord Badges API response structure
-            if (badgeData && badgeData.badges && Array.isArray(badgeData.badges)) {
-                 badgeData.badges.forEach(b => {
-                    const imgUrl = b.badge || b.image; // Support "badge" from new API or "image" if format varies
-                    const name = b.tooltip || b.name || "Badge";
-                    
-                    if(imgUrl) {
-                        badgesHtml += `<img src="${imgUrl}" alt="${name}" class="badge-icon" title="${name}">`;
-                    }
-                });
+            if (isScrolled) {
+                nav.classList.add(...navClasses);
+                nav.classList.remove('border-transparent');
+            } else {
+                nav.classList.remove(...navClasses);
+                nav.classList.add('border-transparent');
             }
 
-            // Render Decoration
-            let decorHtml = '';
-            if (decorData && decorData.decorationHash) {
-                const hash = decorData.decorationHash;
-                // Use onerror to fallback from gif to png
-                decorHtml = `<img class="profile-decoration" src="https://decorcdn.fieryflames.dev/${hash}.gif" onerror="this.onerror=null;this.src='https://decorcdn.fieryflames.dev/${hash}.png'" alt="">`;
+            // Back to Top
+            const backToTopBtn = document.getElementById('back-to-top');
+            if (window.scrollY > 400) {
+                backToTopBtn.classList.remove('translate-y-20', 'opacity-0');
+            } else {
+                backToTopBtn.classList.add('translate-y-20', 'opacity-0');
             }
+        });
 
-            let activityHtml = '';
-            const rich = data.activities.find(a => a.type !== 4); 
-            const custom = data.activities.find(a => a.type === 4); 
-            
-            if (rich) {
-                // Improved Icon Logic
-                let iconUrl = null;
-                if(rich.assets && rich.assets.large_image) {
-                    const img = rich.assets.large_image;
-                    if(img.startsWith('mp:')) iconUrl = `https://media.discordapp.net/${img.replace('mp:','')}`;
-                    else if(img.startsWith('spotify:')) iconUrl = `https://i.scdn.co/image/${img.replace('spotify:','')}`;
-                    else iconUrl = `https://cdn.discordapp.com/app-assets/${rich.application_id}/${img}.png`;
-                } else if (rich.application_id) {
-                     // Fallback for games without rich assets but have app ID (Game Detection)
-                     iconUrl = `https://dcdn.dstn.to/app-icons/${rich.application_id}`;
+        document.getElementById('back-to-top').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // --- Scroll Reveal ---
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            const elementVisible = 100;
+            revealElements.forEach((reveal) => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('active');
                 }
-
-                activityHtml = `
-                    <div class="activity-card">
-                        <div class="activity-header">Playing</div>
-                        <div class="activity-row">
-                            ${iconUrl ? `<img src="${iconUrl}" class="activity-icon" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Xbox_one_logo.svg/512px-Xbox_one_logo.svg.png'">` : ''}
-                            <div class="activity-info">
-                                <div class="activity-title">${rich.name}</div>
-                                <div class="activity-subtitle">${rich.details || rich.state || ''}</div>
-                            </div>
-                        </div>
-                    </div>`;
-            } else if (custom && custom.state) {
-                 // Custom Status Logic
-                 let emojiHtml = '';
-                 if(custom.emoji) {
-                     if(custom.emoji.id) {
-                         emojiHtml = `<img src="https://cdn.discordapp.com/emojis/${custom.emoji.id}.webp?size=44" class="emoji-inline" alt="${custom.emoji.name}">`;
-                     } else {
-                         emojiHtml = `<span>${custom.emoji.name}</span>`;
-                     }
-                 }
-                 
-                 activityHtml = `
-                    <div class="activity-card">
-                        <div class="activity-header">Custom Status</div>
-                        <div class="activity-row">
-                             <div class="activity-info">
-                                <div class="activity-subtitle">${emojiHtml} ${custom.state}</div>
-                            </div>
-                        </div>
-                    </div>`;
-            }
-
-            return `
-                <div class="profile-card">
-                    <div class="profile-banner" style="${bannerStyle}"></div>
-                    <div class="badge-container">${badgesHtml}</div>
-                    <div class="profile-avatar-container">
-                        <div class="profile-avatar">
-                            <img class="avatar-img" src="${avatar}" alt="${user.username}">
-                            ${decorHtml}
-                        </div>
-                    </div>
-                    <div class="profile-body">
-                        <div class="profile-name-container">
-                            <div class="profile-displayname">${user.global_name || user.username}</div>
-                            <div class="profile-username">@${user.username}</div>
-                        </div>
-                        ${activityHtml}
-                    </div>
-                </div>`;
-        }
-
-        // --- WIZARD LOGIC ---
-        function openModal(title, data) {
-            const modal = document.getElementById('infoModal');
-            const displayTitle = data.title || (title.charAt(0).toUpperCase() + title.slice(1));
-            
-            document.getElementById('modalTitle').innerText = displayTitle;
-            document.getElementById('modalClientIcon').src = data.logo;
-            
-            // Build Steps
-            wizardSteps = [];
-            
-            // Step 1: Instruction
-            wizardSteps.push({
-                html: `<div class="wizard-text">${data.desc}</div>`
             });
-
-            // Step 2: Action (if exists)
-            if(data.code) {
-                wizardSteps.push({
-                    html: `
-                        <div class="wizard-text">Copy the code below:</div>
-                        <div class="code-window">
-                            <div class="code-header">
-                                <span class="code-lang">CSS / LINK</span>
-                                <button class="copy-code-btn" onclick="copyCode(this, '${data.code}')"><span>COPY</span></button>
-                            </div>
-                            <div class="code-content">${data.code}</div>
-                        </div>
-                    `
-                });
-            } else if(data.link) {
-                wizardSteps.push({
-                    html: `
-                        <div class="wizard-text">Click below to install:</div>
-                        <a href="${data.link}" target="_blank" class="btn-link">Open Installation Link</a>
-                    `
-                });
-            }
-
-            // Start Wizard
-            currentWizardStep = 0;
-            renderStep();
-            modal.classList.add('open');
-        }
-
-        function renderStep() {
-            const container = document.getElementById('modalBody');
-            const step = wizardSteps[currentWizardStep];
-            const isLast = currentWizardStep === wizardSteps.length - 1;
-            const isFirst = currentWizardStep === 0;
-
-            let navHtml = `
-                <div class="wizard-nav">
-                    ${!isFirst ? `<button class="btn-wizard btn-prev" onclick="changeStep(-1)">Back</button>` : ''}
-                    <button class="btn-wizard btn-next" onclick="${isLast ? 'closeModal()' : 'changeStep(1)'}">${isLast ? 'Done' : 'Next'}</button>
-                </div>
-            `;
-
-            container.innerHTML = `
-                <div class="wizard-step active">
-                    ${step.html}
-                    ${navHtml}
-                </div>
-            `;
-        }
-
-        function changeStep(dir) {
-            currentWizardStep += dir;
-            renderStep();
-        }
-
-        function closeModal() {
-            document.getElementById('infoModal').classList.remove('open');
-        }
-
-        function copyCode(btn, text) {
-            navigator.clipboard.writeText(text).then(() => {
-                const span = btn.querySelector('span');
-                const original = span.innerText;
-                span.innerText = "COPIED!";
-                btn.style.color = "var(--text-positive)";
-                setTimeout(() => { span.innerText = original; btn.style.color = ""; }, 2000);
-            });
-        }
-
-        // BG Logic (Moved here to allow init usage)
-        async function loadBackgroundPfps() {
-            try {
-                const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
-                const data = await res.json();
-                const urls = Object.values(data.avatars||{}).filter(u=>!u.includes("profileBadges")&&u.startsWith("http")).sort(()=>0.5-Math.random()).slice(0,40);
-                const fill = (id, items) => {
-                    const el = document.getElementById(id);
-                    if(!el) return;
-                    [...items,...items].forEach(url=>{
-                        const img=document.createElement('img');img.src=url;img.className='bg-pfp';img.loading='lazy';img.onerror=()=>img.remove();
-                        el.appendChild(img);
-                    });
-                };
-                fill('track1', urls.slice(0,20));
-                fill('track2', urls.slice(20,40));
-            } catch(e){}
-        }
-
-        init();
+        };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
     </script>
 </body>
 </html>
