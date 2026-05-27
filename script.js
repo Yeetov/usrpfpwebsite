@@ -212,24 +212,35 @@ async function initDemoCard() {
             ? `https://cdn.discordapp.com/avatars/${targetId}/${u.avatar}.webp?size=128`
             : 'https://cdn.discordapp.com/embed/avatars/0.png';
 
-        container.innerHTML = buildCard(lr.data, targetId, br || [], dr, { avatarOverride: staticUrl, showDemoBadge: true });
+        container.innerHTML = buildCard(lr.data, targetId, br || [], dr, { avatarOverride: staticUrl });
 
         const avatarImg = container.querySelector('.avatar-img');
-        const badge = container.querySelector('.demo-state-badge');
+        const labelEl = document.getElementById('demoLabel');
         let withPfp = false;
 
         const cycle = () => setTimeout(() => {
-            if (avatarImg) avatarImg.style.opacity = '0';
+            // Fast dash out
+            if (avatarImg) avatarImg.classList.add('pfp-dash-out');
+
             setTimeout(() => {
+                // Swap state while invisible
                 withPfp = !withPfp;
-                if (avatarImg) { avatarImg.src = withPfp ? animatedUrl : staticUrl; avatarImg.style.opacity = '1'; }
-                if (badge) {
-                    badge.textContent = withPfp ? '✦ WITH USERPFP' : 'WITHOUT USERPFP';
-                    badge.classList.toggle('active', withPfp);
+                if (avatarImg) {
+                    avatarImg.src = withPfp ? animatedUrl : staticUrl;
+                    avatarImg.classList.remove('pfp-dash-out');
+                    avatarImg.classList.add('pfp-dash-in');
                 }
-                cycle();
-            }, 420);
-        }, 3000);
+                if (labelEl) {
+                    labelEl.textContent = withPfp ? '✦ WITH USERPFP' : 'WITHOUT USERPFP';
+                    labelEl.classList.toggle('active', withPfp);
+                }
+                // Clean up after in-animation settles
+                setTimeout(() => {
+                    if (avatarImg) avatarImg.classList.remove('pfp-dash-in');
+                    cycle();
+                }, 690);
+            }, 165);
+        }, 2900);
         cycle();
     } catch {}
 }
