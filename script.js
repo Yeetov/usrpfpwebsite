@@ -1,6 +1,6 @@
 const modData = {
     equicord: {
-        logo: "https://equicord.org/assets/icons/equicord/icon-black.png",
+        logo: "https://equicord.org/assets/favicon.png",
         desc: "Equicord includes UserPFP as a built-in plugin. Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it.",
         code: null
     },
@@ -10,43 +10,43 @@ const modData = {
         code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css"
     },
     betterdiscord: {
-        logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7008-a89e-30427975b652",
+        logo: "https://equicord.org/assets/icons/archive/betterdiscord/icon.png",
         title: "Web-Based / BetterDiscord",
         desc: "Add the import line to the top of your <b>Custom CSS / QuickCSS</b> file. The CSS implementation is not recommended when a plugin option is available.",
         code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');"
     },
     replugged: {
-        logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7006-8ac6-8512377d1f58",
+        logo: "https://equicord.org/assets/icons/archive/replugged/icon-background.png",
         desc: "Install UserPFP directly from the official Replugged plugin store.",
         link: "https://replugged.dev/store/dev.WolfPlugs.UserPFP"
     },
     aliucord: {
-        logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7004-844b-04dbc906256c",
+        logo: "https://equicord.org/assets/icons/archive/aliucord/icon.png",
         desc: "Download the plugin file from the link below and place it in your Aliucord plugins folder.",
         link: "https://github.com/OmegaSunkey/awesomeplugins/raw/builds/UserPFP.zip"
     },
     vendetta: {
-        logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7003-8d7d-5e59de0a38d3",
+        logo: "https://equicord.org/assets/icons/archive/vendetta/icon.png",
         desc: "Copy the plugin URL and add it to your plugins list.",
         link: "https://revenge.nexpid.xyz/userpfp"
     },
     shelter: {
-        logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7005-a865-2d3cc2f6b23c",
+        logo: "https://equicord.org/assets/icons/archive/shelter/icon.png",
         desc: "Add this URL to your Shelter plugins.",
         link: "https://spikehd.dev/shelter-plugins/userpfp/"
     },
     bunny: {
-        logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7002-af09-71777b39c12f",
+        logo: "https://equicord.org/assets/icons/archive/bunny/icon.png",
         desc: "Copy the plugin URL and add it to your Bunny plugins list.",
         link: "https://revenge.nexpid.xyz/userpfp"
     },
     revenge: {
-        logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7000-94cc-2800ec57cd07",
+        logo: "https://equicord.org/assets/icons/archive/revenge/icon.png",
         desc: "Copy the plugin URL and add it to your Revenge plugins list.",
         link: "https://revenge.nexpid.xyz/userpfp"
     },
     kettu: {
-        logo: "https://images.equicord.org/api/undefined/files/raw/019a5260-8ca4-7001-ad48-2d37d308f96f",
+        logo: "https://equicord.org/assets/icons/archive/kettu/icon.png",
         desc: "Copy the plugin URL and add it to your Kettu plugins list.",
         link: "https://revenge.nexpid.xyz/userpfp"
     }
@@ -381,18 +381,20 @@ function openModal(title, data) {
     wizardSteps = [{ html: `<div class="wizard-text">${data.desc}</div>` }];
 
     if (data.code) {
+        const escapedCode = data.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         wizardSteps.push({ html: `
             <div class="wizard-text">Copy the code below:</div>
             <div class="code-window">
                 <div class="code-header">
                     <span class="code-lang">CSS / Link</span>
-                    <button class="copy-code-btn" onclick="copyCode(\`${data.code}\`)">
+                    <button class="copy-code-btn" data-copy="${escapedCode}" onclick="copyCode(this)">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                         COPY
                     </button>
                 </div>
-                <div class="code-content">${data.code}</div>
-            </div>`
+                <div class="code-content">${escapedCode}</div>
+            </div>`,
+            code: data.code
         });
     } else if (data.link) {
         wizardSteps.push({ html: `
@@ -437,7 +439,8 @@ function closeModal() {
     document.body.style.overflow = '';
 }
 
-function copyCode(text) {
+function copyCode(btnOrText) {
+    const text = typeof btnOrText === 'string' ? btnOrText : btnOrText.dataset.copy;
     navigator.clipboard.writeText(text).then(() => showToast('✓ Copied to clipboard!'));
 }
 
