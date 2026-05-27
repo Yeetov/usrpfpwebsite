@@ -135,9 +135,6 @@ async function loadData() {
         animateCount('statProfiles', Object.keys(avatars).length);
 
         const urls = Object.values(avatars).filter(u => u.startsWith('http') && !u.includes('profileBadges'));
-        if (urls.length && !document.getElementById('demoAvatar')?.getAttribute('data-loaded')) {
-            document.getElementById('demoAvatar').src = urls[Math.floor(Math.random() * Math.min(urls.length, 30))];
-        }
 
         if (window.innerWidth > 768) {
             const shuffled = [...urls].sort(() => 0.5 - Math.random()).slice(0, 40);
@@ -188,14 +185,11 @@ function showToast(msg) {
 
 async function initDemoCard() {
     const myId = "789872551731527690";
-    const avatarEl = document.getElementById('demoAvatar');
-    const nameEl = document.getElementById('demoName');
-    const userEl = document.getElementById('demoUser');
-    const badgeEl = document.getElementById('demoBadge');
-    if (!avatarEl) return;
+    const container = document.getElementById('demoContainer');
+    if (!container) return;
 
     try {
-        await fetchCustomPfps();
+        await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
 
         let targetId = myId;
         let animatedUrl = customPfps[myId];
@@ -206,31 +200,33 @@ async function initDemoCard() {
         }
         if (!animatedUrl) return;
 
-        const r = await fetch(`https://lanyard.equicord.org/v1/users/${targetId}`);
-        const j = await r.json();
-        if (!j.success) return;
-        const u = j.data.discord_user;
+        const [lr, br, dr] = await Promise.all([
+            fetch(`https://lanyard.equicord.org/v1/users/${targetId}`).then(r => r.json()),
+            fetch(`https://badges.equicord.org/${targetId}`).then(r => r.json()).catch(() => null),
+            fetch(`https://decor.fieryflames.dev/api/users/${targetId}`).then(r => r.json()).catch(() => null)
+        ]);
+        if (!lr.success) return;
+
+        const u = lr.data.discord_user;
         const staticUrl = u.avatar
             ? `https://cdn.discordapp.com/avatars/${targetId}/${u.avatar}.webp?size=128`
             : 'https://cdn.discordapp.com/embed/avatars/0.png';
 
-        avatarEl.setAttribute('data-loaded', '1');
-        avatarEl.src = staticUrl;
-        if (nameEl) nameEl.textContent = u.global_name || u.username;
-        if (userEl) userEl.textContent = `@${u.username}`;
-        if (badgeEl) { badgeEl.textContent = 'WITHOUT USERPFP'; badgeEl.className = 'demo-badge'; }
+        container.innerHTML = buildCard(lr.data, targetId, br || [], dr, { avatarOverride: staticUrl, showDemoBadge: true });
 
+        const avatarImg = container.querySelector('.avatar-img');
+        const badge = container.querySelector('.demo-state-badge');
         let withPfp = false;
+
         const cycle = () => setTimeout(() => {
-            avatarEl.style.opacity = '0';
+            if (avatarImg) avatarImg.style.opacity = '0';
             setTimeout(() => {
                 withPfp = !withPfp;
-                avatarEl.src = withPfp ? animatedUrl : staticUrl;
-                if (badgeEl) {
-                    badgeEl.textContent = withPfp ? '✦ WITH USERPFP' : 'WITHOUT USERPFP';
-                    badgeEl.className = 'demo-badge' + (withPfp ? ' active' : '');
+                if (avatarImg) { avatarImg.src = withPfp ? animatedUrl : staticUrl; avatarImg.style.opacity = '1'; }
+                if (badge) {
+                    badge.textContent = withPfp ? '✦ WITH USERPFP' : 'WITHOUT USERPFP';
+                    badge.classList.toggle('active', withPfp);
                 }
-                avatarEl.style.opacity = '1';
                 cycle();
             }, 420);
         }, 3000);
@@ -345,9 +341,10 @@ function getUsrbgUrl(id) {
     return `${endpoint}/${bucket}/${prefix}${id}?${etag}`;
 }
 
-function buildCard(data, id, badgeData, decorData) {
+function buildCard(data, id, badgeData, decorData, opts = {}) {
+    const { avatarOverride = null, showDemoBadge = false } = opts;
     const u = data.discord_user;
-    const avatar = customPfps[id] || (u.avatar
+    const avatar = avatarOverride || customPfps[id] || (u.avatar
         ? `https://cdn.discordapp.com/avatars/${id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'webp'}?size=128`
         : 'https://cdn.discordapp.com/embed/avatars/0.png');
 
@@ -416,8 +413,10 @@ function buildCard(data, id, badgeData, decorData) {
         </div>`;
     }
 
+    const demoBadgeHtml = showDemoBadge ? `<div class="demo-state-badge">WITHOUT USERPFP</div>` : '';
+
     return `<div class="profile-card">
-        <div class="profile-banner" ${bannerStyle}></div>
+        <div class="profile-banner" ${bannerStyle}>${demoBadgeHtml}</div>
         <div class="badge-container">${badgeHtml}</div>
         <div class="profile-avatar-container">
             <div class="profile-avatar">
