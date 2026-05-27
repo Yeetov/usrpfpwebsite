@@ -33,10 +33,10 @@
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
     <div class="nav-inner">
-        <a href="#home" class="nav-brand"><span>User</span>PFP</a>
+        <a href="index.html" class="nav-brand"><span>User</span>PFP</a>
         <div class="nav-links" id="navLinks">
-            <a href="#home" class="nav-link" data-view="home">Home</a>
-            <a href="#staff" class="nav-link" data-view="staff">Staff</a>
+            <a href="index.html" class="nav-link active">Home</a>
+            <a href="staff.html" class="nav-link">Staff</a>
             <a href="https://github.com/UserPFP/UserPFP" target="_blank" class="nav-link">GitHub</a>
             <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="nav-link">Discord</a>
         </div>
@@ -47,14 +47,14 @@
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
-    <a href="#home" class="nav-link" onclick="closeMobileMenu()">Home</a>
-    <a href="#staff" class="nav-link" onclick="closeMobileMenu()">Staff</a>
+    <a href="index.html" class="nav-link active" onclick="closeMobileMenu()">Home</a>
+    <a href="staff.html" class="nav-link" onclick="closeMobileMenu()">Staff</a>
     <a href="https://github.com/UserPFP/UserPFP" target="_blank" class="nav-link" onclick="closeMobileMenu()">GitHub</a>
     <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="nav-link" onclick="closeMobileMenu()">Discord</a>
 </div>
 
 <!-- HOME VIEW -->
-<main id="home-view" class="view-container active">
+<main class="view-container active">
 
     <!-- HERO -->
     <section class="hero-section">
@@ -87,13 +87,13 @@
                 <div class="demo-card">
                     <div class="demo-banner">
                         <div class="demo-avatar-wrap">
-                            <img class="demo-avatar-img" id="demoAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Animated PFP Demo">
+                            <img class="demo-avatar-img" id="demoAvatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="UserPFP Demo">
                         </div>
-                        <div class="demo-tag">&#10022; ANIMATED</div>
+                        <div class="demo-badge" id="demoBadge">WITHOUT USERPFP</div>
                     </div>
                     <div class="demo-body">
-                        <div class="demo-name">DiscordUser</div>
-                        <div class="demo-user">@discorduser</div>
+                        <div class="demo-name" id="demoName">Loading&hellip;</div>
+                        <div class="demo-user" id="demoUser">@loading</div>
                         <div class="demo-info">Powered by <span class="demo-pill">UserPFP</span></div>
                     </div>
                 </div>
@@ -195,28 +195,16 @@
 
 </main>
 
-<!-- STAFF VIEW -->
-<main id="staff-view" class="view-container">
-    <div class="staff-header">
-        <span class="section-label">The Team</span>
-        <h1 style="margin-top:0.75rem;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Meet The Staff
-        </h1>
-        <p>The developers and contributors making UserPFP possible.</p>
-    </div>
-    <div id="staffLoader" class="loader"></div>
-    <div class="staff-grid" id="staffGrid"></div>
-</main>
-
 <!-- FOOTER -->
 <footer class="footer">
     <div class="footer-inner">
         <div class="footer-brand"><span>User</span>PFP</div>
         <div class="footer-links">
-            <a href="https://github.com/UserPFP/UserPFP" target="_blank">Source Code</a>
+            <a href="https://github.com/Yeetov/usrpfpwebsite" target="_blank">Website Source</a>
+            <a href="https://github.com/UserPFP/UserPFP" target="_blank">Plugin GitHub</a>
             <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank">Support</a>
-            <a href="#staff">Staff</a>
+            <a href="staff.html">Staff</a>
+            <a href="privacy.html">Privacy Policy</a>
         </div>
         <a href="https://gelatofish.vercel.app/" target="_blank" class="partner-badge">
             <svg width="22" height="22" viewBox="0 0 100 60" fill="#22c55e" style="flex-shrink:0"><path d="M70 30 C 50 10, 20 10, 10 30 C 20 50, 50 50, 70 30 Z M 70 30 L 90 10 L 90 50 Z"/><circle cx="25" cy="25" r="3" fill="white" opacity="0.8"/></svg>

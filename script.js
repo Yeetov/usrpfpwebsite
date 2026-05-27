@@ -79,53 +79,36 @@ let mobileOpen = false;
 // --- INIT ---
 
 function init() {
-    renderMods();
-    renderDropdown();
-    handleRoute();
-
-    window.addEventListener('hashchange', () => { closeMobileMenu(); handleRoute(); });
     window.addEventListener('scroll', () => {
-        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+        document.getElementById('navbar')?.classList.toggle('scrolled', window.scrollY > 20);
     }, { passive: true });
     window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
     window.addEventListener('click', () => {
         const m = document.getElementById('clientDropdown');
         if (m?.classList.contains('show')) m.classList.remove('show');
     });
-    document.getElementById('infoModal').addEventListener('click', e => {
-        if (e.target.id === 'infoModal') closeModal();
-    });
+    const modal = document.getElementById('infoModal');
+    if (modal) modal.addEventListener('click', e => { if (e.target.id === 'infoModal') closeModal(); });
 
     const obs = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-
-    loadData();
-}
-
-// --- ROUTING ---
-
-function handleRoute() {
-    let view = window.location.hash.replace('#', '') || 'home';
-    if (!['home', 'staff'].includes(view)) view = 'home';
-
-    if (view !== 'home') window.scrollTo({ top: 0, behavior: 'instant' });
-
-    document.querySelectorAll('.nav-link[data-view]').forEach(l => {
-        l.classList.toggle('active', l.dataset.view === view);
-    });
-    document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-    document.getElementById(`${view}-view`).classList.add('active');
-
-    document.getElementById('bgAnim').style.display = view === 'home' ? '' : 'none';
-    if (view === 'staff' && !window.staffLoaded) loadStaff();
-
     setTimeout(() => {
         document.querySelectorAll('.reveal:not(.visible)').forEach(el => {
             if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('visible');
         });
     }, 60);
+
+    if (document.getElementById('modGrid')) {
+        renderMods();
+        renderDropdown();
+        loadData();
+        initDemoCard();
+    }
+    if (document.getElementById('staffGrid')) {
+        loadStaff();
+    }
 }
 
 // --- MOBILE MENU ---
@@ -152,7 +135,7 @@ async function loadData() {
         animateCount('statProfiles', Object.keys(avatars).length);
 
         const urls = Object.values(avatars).filter(u => u.startsWith('http') && !u.includes('profileBadges'));
-        if (urls.length) {
+        if (urls.length && !document.getElementById('demoAvatar')?.getAttribute('data-loaded')) {
             document.getElementById('demoAvatar').src = urls[Math.floor(Math.random() * Math.min(urls.length, 30))];
         }
 
@@ -199,6 +182,60 @@ function showToast(msg) {
         t.classList.add('out');
         setTimeout(() => t.remove(), 280);
     }, 2400);
+}
+
+// --- DEMO CARD ---
+
+async function initDemoCard() {
+    const myId = "789872551731527690";
+    const avatarEl = document.getElementById('demoAvatar');
+    const nameEl = document.getElementById('demoName');
+    const userEl = document.getElementById('demoUser');
+    const badgeEl = document.getElementById('demoBadge');
+    if (!avatarEl) return;
+
+    try {
+        await fetchCustomPfps();
+
+        let targetId = myId;
+        let animatedUrl = customPfps[myId];
+        if (!animatedUrl) {
+            for (const id of staffIds) {
+                if (customPfps[id]) { targetId = id; animatedUrl = customPfps[id]; break; }
+            }
+        }
+        if (!animatedUrl) return;
+
+        const r = await fetch(`https://lanyard.equicord.org/v1/users/${targetId}`);
+        const j = await r.json();
+        if (!j.success) return;
+        const u = j.data.discord_user;
+        const staticUrl = u.avatar
+            ? `https://cdn.discordapp.com/avatars/${targetId}/${u.avatar}.webp?size=128`
+            : 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+        avatarEl.setAttribute('data-loaded', '1');
+        avatarEl.src = staticUrl;
+        if (nameEl) nameEl.textContent = u.global_name || u.username;
+        if (userEl) userEl.textContent = `@${u.username}`;
+        if (badgeEl) { badgeEl.textContent = 'WITHOUT USERPFP'; badgeEl.className = 'demo-badge'; }
+
+        let withPfp = false;
+        const cycle = () => setTimeout(() => {
+            avatarEl.style.opacity = '0';
+            setTimeout(() => {
+                withPfp = !withPfp;
+                avatarEl.src = withPfp ? animatedUrl : staticUrl;
+                if (badgeEl) {
+                    badgeEl.textContent = withPfp ? '✦ WITH USERPFP' : 'WITHOUT USERPFP';
+                    badgeEl.className = 'demo-badge' + (withPfp ? ' active' : '');
+                }
+                avatarEl.style.opacity = '1';
+                cycle();
+            }, 420);
+        }, 3000);
+        cycle();
+    } catch {}
 }
 
 // --- MOD GRID ---
@@ -256,11 +293,10 @@ function toggleDropdown(e) {
 // --- STAFF ---
 
 async function loadStaff() {
-    window.staffLoaded = true;
     const grid = document.getElementById('staffGrid');
     const loader = document.getElementById('staffLoader');
     grid.innerHTML = '';
-    loader.style.display = 'block';
+    if (loader) loader.style.display = 'block';
     try {
         await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
         const myId = "789872551731527690";
@@ -275,15 +311,16 @@ async function loadStaff() {
                 return lr.success ? { id, data: lr.data, badges: br || [], decor: dr } : null;
             } catch { return null; }
         }));
-        loader.style.display = 'none';
+        if (loader) loader.style.display = 'none';
         grid.innerHTML = results.filter(Boolean).map(r => buildCard(r.data, r.id, r.badges, r.decor)).join('');
     } catch {
-        loader.style.display = 'none';
+        if (loader) loader.style.display = 'none';
         grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;width:100%">Unable to load staff. Please try again later.</p>';
     }
 }
 
 async function fetchCustomPfps() {
+    if (Object.keys(customPfps).length) return;
     try {
         let res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/import.css');
         if (!res.ok) res = await fetch('https://raw.githubusercontent.com/UserPFP/UserPFP/main/import.css');
@@ -331,19 +368,18 @@ function buildCard(data, id, badgeData, decorData) {
     // Status dot
     const statusMap = { online: 'status-online', idle: 'status-idle', dnd: 'status-dnd' };
     const statusClass = statusMap[data.discord_status] || 'status-offline';
-    const statusDot = `<div class="status-dot ${statusClass}"></div>`;
 
-    // Badges
-    let badgeHtml = '<div class="badge-chip">Staff</div>';
+    // Badges with tooltip wraps
+    let badgeHtml = '';
     if (badgeData?.badges?.length) {
         badgeData.badges.forEach(b => {
             const img = b.badge || b.image;
             const name = b.tooltip || b.name || 'Badge';
-            if (img) badgeHtml += `<img src="${img}" alt="${name}" class="badge-icon" title="${name}">`;
+            if (img) badgeHtml += `<div class="badge-wrap" data-tooltip="${name}"><img src="${img}" alt="${name}" class="badge-icon"></div>`;
         });
     }
 
-    // Custom status inline (below username)
+    // Custom status inline below username
     const custom = data.activities?.find(a => a.type === 4);
     let customStatusHtml = '';
     if (custom?.state || custom?.emoji) {
@@ -353,12 +389,12 @@ function buildCard(data, id, badgeData, decorData) {
         customStatusHtml = `<div class="profile-custom-status">${emoji}${custom.state || ''}</div>`;
     }
 
-    // Rich activity
+    // Rich activity (shown above the divider/roles)
     const rich = data.activities?.find(a => a.type !== 4);
     let activityHtml = '';
     if (rich) {
-        const typeLabels = { 0: 'Playing', 1: 'Live on Twitch', 2: 'Listening to Spotify', 3: 'Watching', 5: 'Competing in' };
-        const typeLabel = typeLabels[rich.type] ?? 'Playing';
+        const typeLabels = { 0: 'Playing a game', 1: 'Live on Twitch', 2: 'Listening to Spotify', 3: 'Watching', 5: 'Competing in' };
+        const typeLabel = typeLabels[rich.type] ?? 'Playing a game';
         let icon = null;
         if (rich.assets?.large_image) {
             const img = rich.assets.large_image;
@@ -382,11 +418,12 @@ function buildCard(data, id, badgeData, decorData) {
 
     return `<div class="profile-card">
         <div class="profile-banner" ${bannerStyle}></div>
+        <div class="badge-container">${badgeHtml}</div>
         <div class="profile-avatar-container">
             <div class="profile-avatar">
                 <img class="avatar-img" src="${avatar}" alt="${u.username}">
                 ${decor}
-                ${statusDot}
+                <div class="status-dot ${statusClass}"></div>
             </div>
         </div>
         <div class="profile-body">
@@ -395,13 +432,12 @@ function buildCard(data, id, badgeData, decorData) {
                 <div class="profile-username">@${u.username}</div>
                 ${customStatusHtml}
             </div>
-            <div class="badge-container">${badgeHtml}</div>
+            ${activityHtml}
             <div class="profile-divider"></div>
             <div class="profile-section-label">Roles</div>
             <div class="profile-roles">
                 <div class="role-badge"><div class="role-dot" style="background:#22c55e"></div>Staff</div>
             </div>
-            ${activityHtml}
         </div>
     </div>`;
 }
@@ -475,7 +511,7 @@ function closeModal() {
 
 function copyCode(btnOrText) {
     const text = typeof btnOrText === 'string' ? btnOrText : btnOrText.dataset.copy;
-    navigator.clipboard.writeText(text).then(() => showToast('✓ Copied to clipboard!'));
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
 }
 
 init();
