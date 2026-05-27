@@ -83,7 +83,7 @@ function init() {
     renderDropdown();
     handleRoute();
 
-    window.addEventListener('hashchange', handleRoute);
+    window.addEventListener('hashchange', () => { closeMobileMenu(); handleRoute(); });
     window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
     }, { passive: true });
@@ -101,8 +101,7 @@ function init() {
     }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-    if (window.innerWidth > 768) loadBackgroundPfps();
-    loadPageData();
+    loadData();
 }
 
 // --- ROUTING ---
@@ -145,7 +144,7 @@ function closeMobileMenu() {
 
 // --- DATA LOADING ---
 
-async function loadPageData() {
+async function loadData() {
     try {
         const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
         const data = await res.json();
@@ -155,6 +154,22 @@ async function loadPageData() {
         const urls = Object.values(avatars).filter(u => u.startsWith('http') && !u.includes('profileBadges'));
         if (urls.length) {
             document.getElementById('demoAvatar').src = urls[Math.floor(Math.random() * Math.min(urls.length, 30))];
+        }
+
+        if (window.innerWidth > 768) {
+            const shuffled = [...urls].sort(() => 0.5 - Math.random()).slice(0, 40);
+            const fill = (id, items) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                [...items, ...items].forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url; img.className = 'bg-pfp'; img.loading = 'lazy';
+                    img.onerror = () => img.remove();
+                    el.appendChild(img);
+                });
+            };
+            fill('track1', shuffled.slice(0, 20));
+            fill('track2', shuffled.slice(20, 40));
         }
     } catch {}
 }
@@ -298,27 +313,52 @@ function buildCard(data, id, badgeData, decorData) {
     const avatar = customPfps[id] || (u.avatar
         ? `https://cdn.discordapp.com/avatars/${id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'webp'}?size=128`
         : 'https://cdn.discordapp.com/embed/avatars/0.png');
-    const banner = getUsrbgUrl(id) || manualBanners[id] || '';
 
-    let badges = '<div class="badge-chip">Staff</div>';
-    if (badgeData?.badges?.length) {
-        badgeData.badges.forEach(b => {
-            const img = b.badge || b.image;
-            const name = b.tooltip || b.name || 'Badge';
-            if (img) badges += `<img src="${img}" alt="${name}" class="badge-icon" title="${name}">`;
-        });
-    }
+    const bannerUrl = getUsrbgUrl(id) || manualBanners[id] || '';
+    const bannerStyle = bannerUrl
+        ? `style="background-image:url('${bannerUrl}')"`
+        : u.banner_color ? `style="background-color:${u.banner_color}"` : '';
 
+    // Decoration: Decor plugin first, then Discord native, then nothing
     let decor = '';
     if (decorData?.decorationHash) {
         const h = decorData.decorationHash;
         decor = `<img class="profile-decoration" src="https://decorcdn.fieryflames.dev/${h}.gif" onerror="this.onerror=null;this.src='https://decorcdn.fieryflames.dev/${h}.png'" alt="">`;
+    } else if (u.avatar_decoration_data?.asset) {
+        decor = `<img class="profile-decoration" src="https://cdn.discordapp.com/avatar-decoration-presets/${u.avatar_decoration_data.asset}.png?passthrough=true" alt="">`;
     }
 
-    let activity = '';
-    const rich = data.activities?.find(a => a.type !== 4);
+    // Status dot
+    const statusMap = { online: 'status-online', idle: 'status-idle', dnd: 'status-dnd' };
+    const statusClass = statusMap[data.discord_status] || 'status-offline';
+    const statusDot = `<div class="status-dot ${statusClass}"></div>`;
+
+    // Badges
+    let badgeHtml = '<div class="badge-chip">Staff</div>';
+    if (badgeData?.badges?.length) {
+        badgeData.badges.forEach(b => {
+            const img = b.badge || b.image;
+            const name = b.tooltip || b.name || 'Badge';
+            if (img) badgeHtml += `<img src="${img}" alt="${name}" class="badge-icon" title="${name}">`;
+        });
+    }
+
+    // Custom status inline (below username)
     const custom = data.activities?.find(a => a.type === 4);
+    let customStatusHtml = '';
+    if (custom?.state || custom?.emoji) {
+        let emoji = '';
+        if (custom.emoji?.id) emoji = `<img src="https://cdn.discordapp.com/emojis/${custom.emoji.id}.webp?size=44" class="emoji-inline" alt="">`;
+        else if (custom.emoji?.name) emoji = `<span>${custom.emoji.name}</span>`;
+        customStatusHtml = `<div class="profile-custom-status">${emoji}${custom.state || ''}</div>`;
+    }
+
+    // Rich activity
+    const rich = data.activities?.find(a => a.type !== 4);
+    let activityHtml = '';
     if (rich) {
+        const typeLabels = { 0: 'Playing', 1: 'Live on Twitch', 2: 'Listening to Spotify', 3: 'Watching', 5: 'Competing in' };
+        const typeLabel = typeLabels[rich.type] ?? 'Playing';
         let icon = null;
         if (rich.assets?.large_image) {
             const img = rich.assets.large_image;
@@ -328,45 +368,40 @@ function buildCard(data, id, badgeData, decorData) {
         } else if (rich.application_id) {
             icon = `https://dcdn.dstn.to/app-icons/${rich.application_id}`;
         }
-        activity = `<div class="activity-card">
-            <div class="activity-header">Playing</div>
+        activityHtml = `<div class="activity-card">
+            <div class="activity-type">${typeLabel}</div>
             <div class="activity-row">
-                ${icon ? `<img src="${icon}" class="activity-icon" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Xbox_one_logo.svg/512px-Xbox_one_logo.svg.png'">` : ''}
+                ${icon ? `<img src="${icon}" class="activity-icon" onerror="this.style.display='none'">` : ''}
                 <div class="activity-info">
                     <div class="activity-title">${rich.name}</div>
                     <div class="activity-subtitle">${rich.details || rich.state || ''}</div>
                 </div>
             </div>
         </div>`;
-    } else if (custom?.state) {
-        let emoji = '';
-        if (custom.emoji?.id) emoji = `<img src="https://cdn.discordapp.com/emojis/${custom.emoji.id}.webp?size=44" class="emoji-inline" alt="">`;
-        else if (custom.emoji?.name) emoji = `<span>${custom.emoji.name}</span>`;
-        activity = `<div class="activity-card">
-            <div class="activity-header">Custom Status</div>
-            <div class="activity-row">
-                <div class="activity-info">
-                    <div class="activity-subtitle">${emoji} ${custom.state}</div>
-                </div>
-            </div>
-        </div>`;
     }
 
     return `<div class="profile-card">
-        <div class="profile-banner" ${banner ? `style="background-image:url('${banner}')"` : ''}></div>
-        <div class="badge-container">${badges}</div>
+        <div class="profile-banner" ${bannerStyle}></div>
         <div class="profile-avatar-container">
             <div class="profile-avatar">
                 <img class="avatar-img" src="${avatar}" alt="${u.username}">
                 ${decor}
+                ${statusDot}
             </div>
         </div>
         <div class="profile-body">
             <div class="profile-name-container">
                 <div class="profile-displayname">${u.global_name || u.username}</div>
                 <div class="profile-username">@${u.username}</div>
+                ${customStatusHtml}
             </div>
-            ${activity}
+            <div class="badge-container">${badgeHtml}</div>
+            <div class="profile-divider"></div>
+            <div class="profile-section-label">Roles</div>
+            <div class="profile-roles">
+                <div class="role-badge"><div class="role-dot" style="background:#22c55e"></div>Staff</div>
+            </div>
+            ${activityHtml}
         </div>
     </div>`;
 }
@@ -393,8 +428,7 @@ function openModal(title, data) {
                     </button>
                 </div>
                 <div class="code-content">${escapedCode}</div>
-            </div>`,
-            code: data.code
+            </div>`
         });
     } else if (data.link) {
         wizardSteps.push({ html: `
@@ -442,30 +476,6 @@ function closeModal() {
 function copyCode(btnOrText) {
     const text = typeof btnOrText === 'string' ? btnOrText : btnOrText.dataset.copy;
     navigator.clipboard.writeText(text).then(() => showToast('✓ Copied to clipboard!'));
-}
-
-// --- BACKGROUND ---
-
-async function loadBackgroundPfps() {
-    try {
-        const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
-        const data = await res.json();
-        const urls = Object.values(data.avatars || {})
-            .filter(u => u.startsWith('http') && !u.includes('profileBadges'))
-            .sort(() => 0.5 - Math.random()).slice(0, 40);
-        const fill = (id, items) => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            [...items, ...items].forEach(url => {
-                const img = document.createElement('img');
-                img.src = url; img.className = 'bg-pfp'; img.loading = 'lazy';
-                img.onerror = () => img.remove();
-                el.appendChild(img);
-            });
-        };
-        fill('track1', urls.slice(0, 20));
-        fill('track2', urls.slice(20, 40));
-    } catch {}
 }
 
 init();
