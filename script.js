@@ -214,34 +214,56 @@ async function initDemoCard() {
 
         container.innerHTML = buildCard(lr.data, targetId, br || [], dr, { avatarOverride: staticUrl });
 
-        const avatarImg = container.querySelector('.avatar-img');
-        const labelEl = document.getElementById('demoLabel');
+        const avatarEl  = container.querySelector('.profile-avatar');
+        const imgEl     = container.querySelector('.avatar-img');
+        const labelEl   = document.getElementById('demoLabel');
         let withPfp = false;
 
-        const cycle = () => setTimeout(() => {
-            // Fast dash out
-            if (avatarImg) avatarImg.classList.add('pfp-dash-out');
+        const runTransition = () => {
+            // ── Phase 1: Charge (520ms) — ring builds, image dims to white ──
+            avatarEl?.classList.add('upgrade-charge-ring');
+            imgEl?.classList.add('upgrade-dim-flash');
 
             setTimeout(() => {
-                // Swap state while invisible
+                // ── Phase 2: Swap at peak white-flash, then emerge ──
                 withPfp = !withPfp;
-                if (avatarImg) {
-                    avatarImg.src = withPfp ? animatedUrl : staticUrl;
-                    avatarImg.classList.remove('pfp-dash-out');
-                    avatarImg.classList.add('pfp-dash-in');
+                if (imgEl) imgEl.src = withPfp ? animatedUrl : staticUrl;
+
+                avatarEl?.classList.remove('upgrade-charge-ring');
+                avatarEl?.classList.add('upgrade-glow-fade');
+                imgEl?.classList.remove('upgrade-dim-flash');
+                imgEl?.classList.add('upgrade-emerge');
+
+                // Ripple ring bursts outward
+                if (avatarEl) {
+                    const ripple = document.createElement('div');
+                    ripple.className = 'upgrade-ripple';
+                    avatarEl.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 700);
                 }
+
+                // Label: fade out, swap text, slide up
                 if (labelEl) {
-                    labelEl.textContent = withPfp ? '✦ WITH USERPFP' : 'WITHOUT USERPFP';
-                    labelEl.classList.toggle('active', withPfp);
+                    labelEl.style.opacity = '0';
+                    setTimeout(() => {
+                        labelEl.textContent = withPfp ? '✦ WITH USERPFP' : 'WITHOUT USERPFP';
+                        labelEl.classList.toggle('active', withPfp);
+                        labelEl.classList.remove('demo-label-in');
+                        void labelEl.offsetWidth;
+                        labelEl.classList.add('demo-label-in');
+                    }, 70);
                 }
-                // Clean up after in-animation settles
+
+                // ── Phase 3: Settle + queue next cycle ──
                 setTimeout(() => {
-                    if (avatarImg) avatarImg.classList.remove('pfp-dash-in');
-                    cycle();
-                }, 690);
-            }, 165);
-        }, 2900);
-        cycle();
+                    avatarEl?.classList.remove('upgrade-glow-fade');
+                    imgEl?.classList.remove('upgrade-emerge');
+                    setTimeout(runTransition, 3200);
+                }, 940);
+            }, 520);
+        };
+
+        setTimeout(runTransition, 3200);
     } catch {}
 }
 
