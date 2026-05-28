@@ -114,6 +114,31 @@ let wizardSteps = [];
 let currentStep = 0;
 let mobileOpen = false;
 
+// --- UTILS ---
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function buildSkeletonCard() {
+    return `<div class="profile-card skeleton">
+        <div class="profile-banner"></div>
+        <div class="profile-avatar-container"><div class="profile-avatar"></div></div>
+        <div class="sk-body">
+            <span class="sk-shine" style="width:62%;height:13px;margin-bottom:9px;"></span>
+            <span class="sk-shine" style="width:40%;height:10px;margin-bottom:14px;"></span>
+            <div class="profile-divider"></div>
+            <span class="sk-shine" style="width:36%;height:9px;margin-bottom:9px;"></span>
+            <span class="sk-shine" style="width:30%;height:22px;border-radius:4px;"></span>
+        </div>
+    </div>`;
+}
+
 // --- INIT ---
 
 function init() {
@@ -167,9 +192,17 @@ function closeMobileMenu() {
 
 async function loadData() {
     fetch('/api/count').then(r => r.json()).then(d => animateCount('statProfiles', d.count)).catch(() => {});
-    fetch('/api/widget').then(r => r.json()).then(d => {
-        if (d.presence_count) animateCount('statOnline', d.presence_count);
-    }).catch(() => {});
+    const onlineEl = document.getElementById('statOnline');
+    const onlineLabelEl = onlineEl?.closest('.stat-item')?.querySelector('.stat-label');
+    const showFallbackStat = () => {
+        if (onlineEl) onlineEl.textContent = '10+';
+        if (onlineLabelEl) onlineLabelEl.textContent = 'Supported Clients';
+    };
+    fetch('/api/widget')
+        .catch(() => fetch('https://discord.com/api/guilds/1129784704267210844/widget.json'))
+        .then(r => r.json())
+        .then(d => { d.presence_count > 0 ? animateCount('statOnline', d.presence_count) : showFallbackStat(); })
+        .catch(showFallbackStat);
 
     if (window.innerWidth > 768) {
         try {
@@ -224,6 +257,8 @@ function showToast(msg) {
 async function initDemoCard() {
     const container = document.getElementById('demoContainer');
     if (!container) return;
+
+    container.innerHTML = buildSkeletonCard();
 
     try {
         await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
@@ -360,11 +395,11 @@ function toggleDropdown(e) {
 async function loadStaff() {
     const grid = document.getElementById('staffGrid');
     const loader = document.getElementById('staffLoader');
-    grid.innerHTML = '';
-    if (loader) loader.style.display = 'block';
+    if (loader) loader.style.display = 'none';
+    grid.innerHTML = Array(staffIds.length).fill(0).map(buildSkeletonCard).join('');
     try {
         await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
-        const order = [...staffIds].sort(() => 0.5 - Math.random());
+        const order = shuffle(staffIds);
         const results = await Promise.all(order.map(async id => {
             try {
                 const [lr, br, dr] = await Promise.all([
@@ -375,10 +410,10 @@ async function loadStaff() {
                 return lr.success ? { id, data: lr.data, badges: br || [], decor: dr } : null;
             } catch { return null; }
         }));
-        if (loader) loader.style.display = 'none';
-        grid.innerHTML = results.filter(Boolean).map(r => buildCard(r.data, r.id, r.badges, r.decor)).join('');
+        grid.innerHTML = results.filter(Boolean).map((r, i) =>
+            buildCard(r.data, r.id, r.badges, r.decor, { animDelay: i * 0.055 })
+        ).join('');
     } catch {
-        if (loader) loader.style.display = 'none';
         grid.innerHTML = '<p style="color:var(--text-muted);text-align:center;width:100%">Unable to load staff. Please try again later.</p>';
     }
 }
@@ -406,7 +441,7 @@ function getUsrbgUrl(id) {
 }
 
 function buildCard(data, id, badgeData, decorData, opts = {}) {
-    const { avatarOverride = null, showDemoBadge = false } = opts;
+    const { avatarOverride = null, showDemoBadge = false, animDelay = 0 } = opts;
     const u = data.discord_user;
     const avatar = avatarOverride || customPfps[id] || (u.avatar
         ? `https://cdn.discordapp.com/avatars/${id}/${u.avatar}.${u.avatar.startsWith('a_') ? 'gif' : 'webp'}?size=128`
@@ -479,7 +514,8 @@ function buildCard(data, id, badgeData, decorData, opts = {}) {
 
     const demoBadgeHtml = showDemoBadge ? `<div class="demo-state-badge">WITHOUT USERPFP</div>` : '';
 
-    return `<div class="profile-card">
+    const delayStyle = animDelay ? ` style="animation-delay:${animDelay}s"` : '';
+    return `<div class="profile-card"${delayStyle}>
         <div class="profile-banner" ${bannerStyle}>${demoBadgeHtml}</div>
         <div class="badge-container">${badgeHtml}</div>
         <div class="profile-avatar-container">
