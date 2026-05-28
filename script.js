@@ -354,7 +354,8 @@ function renderMods() {
         const label = data.title || (key[0].toUpperCase() + key.slice(1));
         const b = document.createElement('div');
         b.className = `mod-btn${data.deprecated ? ' deprecated' : ''}`;
-        b.innerHTML = `<img src="${data.logo}" alt="${label}"><span class="mod-label">${label}</span>${data.deprecated ? '<span class="deprecated-badge">Not Supported</span>' : ''}`;
+        const labelClass = label.length > 10 ? 'mod-label mod-label-xs' : label.length > 7 ? 'mod-label mod-label-sm' : 'mod-label';
+        b.innerHTML = `<img src="${data.logo}" alt="${label}"><span class="${labelClass}">${label}</span>`;
         b.onclick = () => openModal(key, data);
         g.appendChild(b);
     });
