@@ -167,7 +167,7 @@ function closeMobileMenu() {
 
 async function loadData() {
     fetch('/api/count').then(r => r.json()).then(d => animateCount('statProfiles', d.count)).catch(() => {});
-    fetch('https://discord.com/api/guilds/1129784704267210844/widget.json').then(r => r.json()).then(d => {
+    fetch('/api/widget').then(r => r.json()).then(d => {
         if (d.presence_count) animateCount('statOnline', d.presence_count);
     }).catch(() => {});
 
@@ -222,20 +222,16 @@ function showToast(msg) {
 // --- DEMO CARD ---
 
 async function initDemoCard() {
-    const myId = "789872551731527690";
     const container = document.getElementById('demoContainer');
     if (!container) return;
 
     try {
         await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
 
-        let targetId = myId;
-        let animatedUrl = customPfps[myId];
-        if (!animatedUrl) {
-            for (const id of staffIds) {
-                if (customPfps[id]) { targetId = id; animatedUrl = customPfps[id]; break; }
-            }
-        }
+        const candidates = staffIds.filter(id => customPfps[id]);
+        if (candidates.length === 0) return;
+        const targetId = candidates[Math.floor(Math.random() * candidates.length)];
+        const animatedUrl = customPfps[targetId];
         if (!animatedUrl) return;
 
         const [lr, br, dr] = await Promise.all([
@@ -368,8 +364,7 @@ async function loadStaff() {
     if (loader) loader.style.display = 'block';
     try {
         await Promise.all([fetchCustomPfps(), fetchUsrbg()]);
-        const myId = "789872551731527690";
-        const order = [myId, ...staffIds.filter(id => id !== myId).sort(() => 0.5 - Math.random())];
+        const order = [...staffIds].sort(() => 0.5 - Math.random());
         const results = await Promise.all(order.map(async id => {
             try {
                 const [lr, br, dr] = await Promise.all([
@@ -391,13 +386,9 @@ async function loadStaff() {
 async function fetchCustomPfps() {
     if (Object.keys(customPfps).length) return;
     try {
-        let res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/import.css');
-        if (!res.ok) res = await fetch('https://raw.githubusercontent.com/UserPFP/UserPFP/main/import.css');
+        const res = await fetch('/api/pfps');
         if (!res.ok) return;
-        const css = await res.text();
-        const rx = /src\^="https:\/\/cdn\.discordapp\.com\/avatars\/(\d+)\/".*?url\(([^)]+)\)/g;
-        let m;
-        while ((m = rx.exec(css)) !== null) customPfps[m[1]] = m[2].replace(/['"]/g, '');
+        Object.assign(customPfps, await res.json());
     } catch {}
 }
 
