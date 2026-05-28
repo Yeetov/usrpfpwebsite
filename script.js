@@ -84,9 +84,7 @@ const modData = {
     raincord: {
         logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/raincord/logo.png",
         title: "Rain",
-        deprecated: true,
-        deprecatedMsg: "Rain is not currently supported — but we hope to add support in the future!",
-        desc: "Rain (Raincord) is not currently supported by UserPFP. We hope to add support in a future update."
+        desc: "Rain includes UserPFP as a built-in plugin. Go to <b>Settings &rarr; Plugins &rarr; AnimatedProfiles</b>, and tap the enable button."
     }
 };
 
