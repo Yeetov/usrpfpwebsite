@@ -129,14 +129,15 @@ function closeMobileMenu() {
 
 async function loadData() {
     try {
-        const res = await fetch('https://raw.githubusercontent.com/Yeetov/usrpfpwebsite/main/source/data.json');
+        const res = await fetch('/api/count');
         const data = await res.json();
-        const avatars = data.avatars || {};
-        animateCount('statProfiles', Object.keys(avatars).length);
+        animateCount('statProfiles', data.count);
+    } catch {}
 
-        const urls = Object.values(avatars).filter(u => u.startsWith('http') && !u.includes('profileBadges'));
-
-        if (window.innerWidth > 768) {
+    if (window.innerWidth > 768) {
+        try {
+            await fetchCustomPfps();
+            const urls = Object.values(customPfps);
             const shuffled = [...urls].sort(() => 0.5 - Math.random()).slice(0, 40);
             const fill = (id, items) => {
                 const el = document.getElementById(id);
@@ -150,8 +151,8 @@ async function loadData() {
             };
             fill('track1', shuffled.slice(0, 20));
             fill('track2', shuffled.slice(20, 40));
-        }
-    } catch {}
+        } catch {}
+    }
 }
 
 function animateCount(id, target) {
