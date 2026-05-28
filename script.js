@@ -1,8 +1,7 @@
 const modData = {
     equicord: {
         logo: "https://equicord.org/assets/favicon.png",
-        desc: "Equicord includes UserPFP as a built-in plugin. Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it.",
-        code: null
+        desc: "Equicord includes UserPFP as a built-in plugin. Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it."
     },
     vencord: {
         logo: "https://equicord.org/assets/icons/vencord/icon.png",
@@ -16,19 +15,15 @@ const modData = {
         code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');"
     },
     replugged: {
-        logo: "https://equicord.org/assets/icons/archive/replugged/icon-background.png",
+        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/replugged/logo.png",
         desc: "Install UserPFP directly from the official Replugged plugin store.",
         link: "https://replugged.dev/store/dev.WolfPlugs.UserPFP"
     },
-    aliucord: {
-        logo: "https://equicord.org/assets/icons/archive/aliucord/icon.png",
-        desc: "Download the plugin file from the link below and place it in your Aliucord plugins folder.",
-        link: "https://github.com/OmegaSunkey/awesomeplugins/raw/builds/UserPFP.zip"
-    },
-    vendetta: {
-        logo: "https://equicord.org/assets/icons/archive/vendetta/icon.png",
-        desc: "Copy the plugin URL and add it to your plugins list.",
-        link: "https://revenge.nexpid.xyz/userpfp"
+    openasar: {
+        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/goosemod/logo.png",
+        title: "OpenAsar",
+        desc: "OpenAsar (formerly GooseMod) is a replacement for Discord's app.asar. Add the import line to the top of your <b>QuickCSS</b> to use UserPFP.",
+        code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');"
     },
     shelter: {
         logo: "https://equicord.org/assets/icons/archive/shelter/icon.png",
@@ -49,6 +44,49 @@ const modData = {
         logo: "https://equicord.org/assets/icons/archive/kettu/icon.png",
         desc: "Copy the plugin URL and add it to your Kettu plugins list.",
         link: "https://revenge.nexpid.xyz/userpfp"
+    },
+    velocity: {
+        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/velocity/logo.png",
+        title: "Velocity",
+        deprecated: true,
+        deprecatedMsg: "Velocity is no longer supported or maintained.",
+        desc: "Velocity uses a theme-based implementation. Copy the link and add it to your theme settings.",
+        code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css"
+    },
+    suncord: {
+        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/suncord/logo.png",
+        title: "Suncord",
+        deprecated: true,
+        deprecatedMsg: "Suncord is no longer maintained and has been superseded by Equicord. We recommend switching to Equicord.",
+        desc: "Suncord includes UserPFP as a built-in plugin (same as Equicord). Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it. However, Suncord is no longer maintained — switch to Equicord."
+    },
+    aliucord: {
+        logo: "https://equicord.org/assets/icons/archive/aliucord/icon.png",
+        deprecated: true,
+        deprecatedMsg: "Aliucord is no longer maintained and has been discontinued.",
+        desc: "Download the plugin file from the link below and place it in your Aliucord plugins folder.",
+        link: "https://github.com/OmegaSunkey/awesomeplugins/raw/builds/UserPFP.zip"
+    },
+    vendetta: {
+        logo: "https://equicord.org/assets/icons/archive/vendetta/icon.png",
+        deprecated: true,
+        deprecatedMsg: "Vendetta is obsolete and no longer maintained.",
+        desc: "Copy the plugin URL and add it to your plugins list.",
+        link: "https://revenge.nexpid.xyz/userpfp"
+    },
+    enmity: {
+        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/enmity/logo.png",
+        title: "Enmity",
+        deprecated: true,
+        deprecatedMsg: "Enmity is not supported by UserPFP.",
+        desc: "Enmity is currently not supported by UserPFP. There are no plans to add support at this time."
+    },
+    raincord: {
+        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/raincord/logo.png",
+        title: "Rain",
+        deprecated: true,
+        deprecatedMsg: "Rain is not currently supported — but we hope to add support in the future!",
+        desc: "Rain (Raincord) is not currently supported by UserPFP. We hope to add support in a future update."
     }
 };
 
@@ -128,11 +166,10 @@ function closeMobileMenu() {
 // --- DATA LOADING ---
 
 async function loadData() {
-    try {
-        const res = await fetch('/api/count');
-        const data = await res.json();
-        animateCount('statProfiles', data.count);
-    } catch {}
+    fetch('/api/count').then(r => r.json()).then(d => animateCount('statProfiles', d.count)).catch(() => {});
+    fetch('https://discord.com/api/guilds/1129784704267210844/widget.json').then(r => r.json()).then(d => {
+        if (d.presence_count) animateCount('statOnline', d.presence_count);
+    }).catch(() => {});
 
     if (window.innerWidth > 768) {
         try {
@@ -273,9 +310,10 @@ async function initDemoCard() {
 function renderMods() {
     const g = document.getElementById('modGrid');
     Object.entries(modData).forEach(([key, data]) => {
+        const label = data.title || (key[0].toUpperCase() + key.slice(1));
         const b = document.createElement('div');
-        b.className = 'mod-btn';
-        b.innerHTML = `<img src="${data.logo}" alt="${key}"><span class="mod-label">${key[0].toUpperCase() + key.slice(1)}</span>`;
+        b.className = `mod-btn${data.deprecated ? ' deprecated' : ''}`;
+        b.innerHTML = `<img src="${data.logo}" alt="${label}"><span class="mod-label">${label}</span>${data.deprecated ? '<span class="deprecated-badge">Not Supported</span>' : ''}`;
         b.onclick = () => openModal(key, data);
         g.appendChild(b);
     });
@@ -294,10 +332,11 @@ function renderDropdown() {
         <div id="dropdownList" class="dropdown-list-container"></div>`;
     const list = document.getElementById('dropdownList');
     Object.entries(modData).forEach(([key, data]) => {
+        const label = data.title || (key[0].toUpperCase() + key.slice(1));
         const item = document.createElement('div');
-        item.className = 'dropdown-item';
+        item.className = `dropdown-item${data.deprecated ? ' dropdown-item-deprecated' : ''}`;
         item.setAttribute('data-name', key);
-        item.innerHTML = `<img src="${data.logo}" alt="${key}"> ${key[0].toUpperCase() + key.slice(1)}`;
+        item.innerHTML = `<img src="${data.logo}" alt="${label}"> ${label}${data.deprecated ? ' <span style="font-size:0.65rem;color:rgba(234,179,8,0.8);font-weight:700;margin-left:4px;">🚧</span>' : ''}`;
         item.onclick = () => {
             document.getElementById('clientDropdown').classList.remove('show');
             setTimeout(() => openModal(key, data), 150);
@@ -482,7 +521,8 @@ function openModal(title, data) {
     document.getElementById('modalTitle').textContent = name;
     document.getElementById('modalClientIcon').src = data.logo;
 
-    wizardSteps = [{ html: `<div class="wizard-text">${data.desc}</div>` }];
+    const warnHtml = data.deprecated ? `<div class="modal-deprecated-warning"><div class="mdw-icon">🚧</div><div class="mdw-text"><strong>Not Supported</strong><p>${data.deprecatedMsg}</p></div></div>` : '';
+    wizardSteps = [{ html: `${warnHtml}<div class="wizard-text">${data.desc}</div>` }];
 
     if (data.code) {
         const escapedCode = data.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

@@ -124,9 +124,10 @@ p { color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin: 0; }
 }
 .navbar.scrolled { border-bottom-color:rgba(255,255,255,0.07); box-shadow:0 8px 32px rgba(0,0,0,0.4); }
 .nav-inner { width:100%; max-width:1200px; display:flex; justify-content:space-between; align-items:center; }
-.nav-brand { font-weight:900; font-size:1.45rem; letter-spacing:-0.03em; color:var(--text-header); flex-shrink:0; display:flex; align-items:center; gap:7px; }
-.nav-brand span { color:var(--brand); }
-.nav-favicon { width:22px; height:22px; display:block; flex-shrink:0; }
+.nav-brand { font-weight:900; font-size:1.45rem; letter-spacing:-0.03em; color:var(--text-header); flex-shrink:0; display:flex; align-items:center; gap:0; }
+.nav-brand .brand-text { color:var(--text-header); }
+.nav-brand .brand-text > span { color:var(--brand); }
+.nav-favicon { width:26px; height:26px; display:block; flex-shrink:0; margin-right:8px; }
 .nav-links { display:flex; gap:2px; align-items:center; }
 .nav-link { color:var(--text-muted); font-weight:600; font-size:0.875rem; padding:6px 13px; border-radius:8px; transition:color 0.15s, background 0.15s; }
 .nav-link:hover { color:var(--text-header); background:rgba(255,255,255,0.05); }
@@ -287,6 +288,18 @@ p { color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin: 0; }
 .mod-btn img { width:42px; height:42px; object-fit:contain; border-radius:9px; }
 .mod-label { font-size:0.7rem; font-weight:700; color:var(--text-muted); text-align:center; white-space:nowrap; }
 .mod-btn:hover .mod-label { color:rgba(255,255,255,0.88); }
+.mod-btn.deprecated { opacity:0.72; border-color:rgba(234,179,8,0.25); overflow:hidden; position:relative; }
+.mod-btn.deprecated::before,
+.mod-btn.deprecated::after { content:'🚧 🚧 🚧'; position:absolute; left:-4px; right:-4px; font-size:0.52rem; letter-spacing:0.15em; background:rgba(234,179,8,0.12); color:rgba(234,179,8,0.85); text-align:center; padding:2px 0; overflow:hidden; white-space:nowrap; line-height:1.4; pointer-events:none; }
+.mod-btn.deprecated::before { top:0; }
+.mod-btn.deprecated::after { bottom:0; }
+.mod-btn.deprecated:hover { background:rgba(234,179,8,0.12); border-color:rgba(234,179,8,0.5); transform:translateY(-4px) scale(1.03); box-shadow:0 10px 24px rgba(234,179,8,0.15); }
+.mod-btn.deprecated:hover .mod-label { color:rgba(234,179,8,0.9); }
+.deprecated-badge { font-size:0.58rem; font-weight:800; color:rgba(234,179,8,0.8); letter-spacing:0.05em; text-transform:uppercase; margin-top:2px; }
+.modal-deprecated-warning { display:flex; align-items:flex-start; gap:10px; background:rgba(234,179,8,0.08); border:1px solid rgba(234,179,8,0.25); border-radius:10px; padding:12px 14px; margin-bottom:14px; }
+.mdw-icon { font-size:1.3rem; flex-shrink:0; margin-top:1px; }
+.mdw-text strong { display:block; color:rgba(234,179,8,0.95); font-size:0.83rem; font-weight:700; margin-bottom:3px; }
+.mdw-text p { color:var(--text-muted); font-size:0.8rem; margin:0; line-height:1.5; }
 
 /* STAFF */
 .staff-header { text-align:center; margin-bottom:4rem; padding-top:1rem; }
@@ -378,9 +391,8 @@ p { color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin: 0; }
 /* FOOTER */
 .footer { margin-top:auto; padding:2.5rem 2rem; background:var(--bg-deep); border-top:1px solid rgba(255,255,255,0.04); position:relative; z-index:1; }
 .footer-inner { max-width:1200px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:1.25rem; }
-.footer-brand { font-weight:900; font-size:1.2rem; letter-spacing:-0.03em; color:var(--text-header); display:flex; align-items:center; gap:6px; }
+.footer-brand { font-weight:900; font-size:1.2rem; letter-spacing:-0.03em; color:var(--text-header); }
 .footer-brand span { color:var(--brand); }
-.footer-favicon { width:16px; height:16px; display:block; flex-shrink:0; filter:grayscale(1) brightness(0.55); }
 .footer-links { display:flex; gap:1.75rem; flex-wrap:wrap; justify-content:center; }
 .footer-links a { color:var(--text-muted); font-size:0.875rem; font-weight:600; }
 .footer-links a:hover { color:var(--brand); }
