@@ -145,11 +145,24 @@ function init() {
     window.addEventListener('scroll', () => {
         document.getElementById('navbar')?.classList.toggle('scrolled', window.scrollY > 20);
     }, { passive: true });
-    window.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-    window.addEventListener('click', () => {
-        const m = document.getElementById('clientDropdown');
-        if (m?.classList.contains('show')) m.classList.remove('show');
+    window.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            closeModal();
+            const dd = document.getElementById('clientDropdown');
+            if (dd?.classList.contains('show')) dd.classList.remove('show');
+            if (mobileOpen) closeMobileMenu();
+        }
     });
+    window.addEventListener('click', e => {
+        const dd = document.getElementById('clientDropdown');
+        if (dd?.classList.contains('show')) dd.classList.remove('show');
+        const menu = document.getElementById('mobileMenu');
+        const burger = document.getElementById('hamburger');
+        if (mobileOpen && menu && burger && !menu.contains(e.target) && !burger.contains(e.target)) closeMobileMenu();
+    });
+    window.addEventListener('scroll', () => {
+        document.getElementById('backToTop')?.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
     const modal = document.getElementById('infoModal');
     if (modal) modal.addEventListener('click', e => { if (e.target.id === 'infoModal') closeModal(); });
 
@@ -180,12 +193,16 @@ function toggleMobileMenu() {
     mobileOpen = !mobileOpen;
     document.getElementById('mobileMenu').classList.toggle('open', mobileOpen);
     document.getElementById('hamburger').classList.toggle('open', mobileOpen);
+    document.getElementById('hamburger').setAttribute('aria-expanded', mobileOpen);
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
 }
 
 function closeMobileMenu() {
     mobileOpen = false;
     document.getElementById('mobileMenu').classList.remove('open');
     document.getElementById('hamburger').classList.remove('open');
+    document.getElementById('hamburger').setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
 }
 
 // --- DATA LOADING ---
@@ -355,8 +372,12 @@ function renderMods() {
         const b = document.createElement('div');
         b.className = `mod-btn${data.deprecated ? ' deprecated' : ''}`;
         const labelClass = label.length > 10 ? 'mod-label mod-label-xs' : label.length > 7 ? 'mod-label mod-label-sm' : 'mod-label';
-        b.innerHTML = `<img src="${data.logo}" alt="${label}"><span class="${labelClass}">${label}</span>`;
+        b.innerHTML = `<img src="${data.logo}" alt="${label}" loading="lazy"><span class="${labelClass}">${label}</span>`;
+        b.setAttribute('role', 'button');
+        b.setAttribute('tabindex', '0');
+        b.setAttribute('aria-label', `${label} installation guide`);
         b.onclick = () => openModal(key, data);
+        b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(key, data); } });
         g.appendChild(b);
     });
 }
@@ -366,6 +387,7 @@ function renderMods() {
 function renderDropdown() {
     const menu = document.getElementById('clientDropdown');
     if (!menu) return;
+    menu.addEventListener('click', e => e.stopPropagation());
     menu.innerHTML = `
         <div class="dropdown-header">Select Client</div>
         <div class="dropdown-search-wrapper">
