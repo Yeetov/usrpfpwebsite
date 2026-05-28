@@ -198,11 +198,21 @@ async function loadData() {
         if (onlineEl) onlineEl.textContent = '10+';
         if (onlineLabelEl) onlineLabelEl.textContent = 'Supported Clients';
     };
-    fetch('/api/widget')
-        .catch(() => fetch('https://discord.com/api/guilds/1129784704267210844/widget.json'))
-        .then(r => r.json())
-        .then(d => { d.presence_count > 0 ? animateCount('statOnline', d.presence_count) : showFallbackStat(); })
-        .catch(showFallbackStat);
+    (async () => {
+        const urls = [
+            '/api/widget',
+            'https://discord.com/api/guilds/1129784704267210844/widget.json'
+        ];
+        for (const url of urls) {
+            try {
+                const r = await fetch(url);
+                if (!r.ok) continue;
+                const d = await r.json();
+                if (d.presence_count > 0) { animateCount('statOnline', d.presence_count); return; }
+            } catch {}
+        }
+        showFallbackStat();
+    })();
 
     if (window.innerWidth > 768) {
         try {
