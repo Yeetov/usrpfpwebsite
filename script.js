@@ -1,4 +1,5 @@
 const modData = {
+    // ── Desktop: plugin-based (best experience) ──
     equicord: {
         logo: "https://equicord.org/assets/favicon.png",
         desc: "Equicord includes UserPFP as a built-in plugin. Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it."
@@ -8,16 +9,15 @@ const modData = {
         desc: "Vencord uses a theme-based implementation. Copy the link and paste it into <b>Settings &rarr; Themes &rarr; Online Themes</b>.",
         code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css"
     },
-    betterdiscord: {
-        logo: "https://equicord.org/assets/icons/archive/betterdiscord/icon.png",
-        title: "Web-Based / BetterDiscord",
-        desc: "Add the import line to the top of your <b>Custom CSS / QuickCSS</b> file. The CSS implementation is not recommended when a plugin option is available.",
-        code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');"
-    },
     replugged: {
         logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/replugged/logo.png",
         desc: "Install UserPFP directly from the official Replugged plugin store.",
         link: "https://replugged.dev/store/dev.WolfPlugs.UserPFP"
+    },
+    shelter: {
+        logo: "https://equicord.org/assets/icons/archive/shelter/icon.png",
+        desc: "Add this URL to your Shelter plugins.",
+        link: "https://spikehd.dev/shelter-plugins/userpfp/"
     },
     openasar: {
         logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/goosemod/logo.png",
@@ -25,10 +25,17 @@ const modData = {
         desc: "OpenAsar (formerly GooseMod) is a replacement for Discord's app.asar. Add the import line to the top of your <b>QuickCSS</b> to use UserPFP.",
         code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');"
     },
-    shelter: {
-        logo: "https://equicord.org/assets/icons/archive/shelter/icon.png",
-        desc: "Add this URL to your Shelter plugins.",
-        link: "https://spikehd.dev/shelter-plugins/userpfp/"
+    betterdiscord: {
+        logo: "https://equicord.org/assets/icons/archive/betterdiscord/icon.png",
+        title: "Web-Based / BetterDiscord",
+        desc: "Add the import line to the top of your <b>Custom CSS / QuickCSS</b> file. The CSS implementation is not recommended when a plugin option is available.",
+        code: "@import url('https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css');"
+    },
+    // ── Mobile ──
+    raincord: {
+        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/raincord/logo.png",
+        title: "Rain",
+        desc: "Rain includes UserPFP as a built-in plugin. Go to <b>Settings &rarr; Plugins &rarr; AnimatedProfiles</b>, and tap the enable button."
     },
     bunny: {
         logo: "https://equicord.org/assets/icons/archive/bunny/icon.png",
@@ -45,6 +52,14 @@ const modData = {
         desc: "Copy the plugin URL and add it to your Kettu plugins list.",
         link: "https://revenge.nexpid.xyz/userpfp"
     },
+    // ── Discontinued ──
+    suncord: {
+        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/suncord/logo.png",
+        title: "Suncord",
+        deprecated: true,
+        deprecatedMsg: "Suncord is no longer maintained and has been superseded by Equicord. We recommend switching to Equicord.",
+        desc: "Suncord includes UserPFP as a built-in plugin (same as Equicord). Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it. However, Suncord is no longer maintained — switch to Equicord."
+    },
     velocity: {
         logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/velocity/logo.png",
         title: "Velocity",
@@ -52,13 +67,6 @@ const modData = {
         deprecatedMsg: "Velocity is no longer supported or maintained.",
         desc: "Velocity uses a theme-based implementation. Copy the link and add it to your theme settings.",
         code: "https://raw.githubusercontent.com/UserPFP/UserPFP/main/userpfp.theme.css"
-    },
-    suncord: {
-        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/suncord/logo.png",
-        title: "Suncord",
-        deprecated: true,
-        deprecatedMsg: "Suncord is no longer maintained and has been superseded by Equicord. We recommend switching to Equicord.",
-        desc: "Suncord includes UserPFP as a built-in plugin (same as Equicord). Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it. However, Suncord is no longer maintained — switch to Equicord."
     },
     aliucord: {
         logo: "https://equicord.org/assets/icons/archive/aliucord/icon.png",
@@ -80,11 +88,6 @@ const modData = {
         deprecated: true,
         deprecatedMsg: "Enmity is not supported by UserPFP.",
         desc: "Enmity is currently not supported by UserPFP. There are no plans to add support at this time."
-    },
-    raincord: {
-        logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/raincord/logo.png",
-        title: "Rain",
-        desc: "Rain includes UserPFP as a built-in plugin. Go to <b>Settings &rarr; Plugins &rarr; AnimatedProfiles</b>, and tap the enable button."
     }
 };
 
