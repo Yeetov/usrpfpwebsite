@@ -147,7 +147,7 @@ function buildSkeletonCard() {
 // Chinese variants. "g" is the Google Translate engine target a variant maps to.
 const LANGS = [
     // English variants (all translate to the original English text)
-    { code: 'en-GB', g: 'en', flag: '🇬🇧', native: 'Traditional English', sub: 'English (UK)' },
+    { code: 'en-GB', g: 'en', flag: '🇬🇧', native: 'English', sub: 'English (UK)' },
     { code: 'en-US', g: 'en', flag: '🇺🇸', native: 'English', sub: 'English (US)' },
     { code: 'en-AU', g: 'en', flag: '🇦🇺', native: 'English', sub: 'English (Australia)' },
     { code: 'en-CA', g: 'en', flag: '🇨🇦', native: 'English', sub: 'English (Canada)' },
