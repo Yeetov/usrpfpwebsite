@@ -559,7 +559,7 @@ body { top:0 !important; position:static !important; }
 .lang-search::placeholder { color:var(--text-muted); }
 
 .lang-option {
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    display:flex; align-items:center; gap:11px;
     width:100%; box-sizing:border-box;
     padding:9px 11px; margin:1px 0;
     background:none; border:none; border-radius:var(--radius-md);
@@ -567,11 +567,17 @@ body { top:0 !important; position:static !important; }
     cursor:pointer; transition:background .14s ease, color .14s ease;
 }
 .lang-option:hover { background:var(--modifier-hover); color:var(--text-header); }
+.lang-flag { font-size:1.15rem; line-height:1; flex:none; width:1.5em; text-align:center; }
+.lang-flag-btn { font-size:1.1rem; }
+/* Twemoji image flags: consistent across all platforms */
+img.emoji { height:1.1em; width:1.1em; margin:0; vertical-align:-0.15em; }
+.lang-flag img.emoji { height:1.3em; width:1.3em; vertical-align:-0.28em; }
+.lang-option .lang-text { flex:1 1 auto; min-width:0; display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
 .lang-option .lang-native { font-weight:600; }
 .lang-option .lang-sub { font-size:0.72rem; color:var(--text-muted); font-weight:500; }
 .lang-option.active { background:var(--brand-dim); color:var(--text-header); }
 .lang-option.active .lang-sub { color:var(--brand); }
-.lang-option .lang-check { width:15px; height:15px; flex:none; color:var(--brand); opacity:0; }
+.lang-option .lang-check { width:15px; height:15px; flex:none; margin-left:auto; color:var(--brand); opacity:0; }
 .lang-option.active .lang-check { opacity:1; }
 .lang-empty { padding:14px 11px; color:var(--text-muted); font-size:0.83rem; text-align:center; }
 

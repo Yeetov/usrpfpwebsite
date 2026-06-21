@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=666ec9e68f" />
+    <link rel="stylesheet" href="style.css?v=848441320f" />
     <link id="favicon" rel="icon" href="/src/images/favicon.svg">
 
     <!-- Auto-detect visitor language, then Google Translate handles every language -->
@@ -30,9 +30,12 @@
             if (/(?:^|;\s*)googtrans=/.test(document.cookie)) return;
             var chosen = null;
             try { chosen = localStorage.getItem('siteLang'); } catch (e) {}
-            var lang = chosen || (navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
-            if (lang && lang !== 'en') setCk('/en/' + lang);
-            else if (chosen === 'en') setCk('/en/en');
+            var g = chosen || (navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
+            if (/^en/i.test(g)) g = 'en';
+            else if (/^pt/i.test(g)) g = 'pt';
+            else if (/^es/i.test(g)) g = 'es';
+            else if (/^fr/i.test(g)) g = 'fr';
+            setCk(g === 'en' ? '/en/en' : '/en/' + g);
         })();
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
@@ -67,8 +70,8 @@
         </div>
         <div class="lang-picker notranslate" id="langPicker" translate="no">
             <button class="lang-btn" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="toggleLangMenu(event)">
-                <svg class="lang-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <span class="lang-current" id="langCurrent">English</span>
+                <span class="lang-flag lang-flag-btn" id="langFlag" aria-hidden="true">🇬🇧</span>
+                <span class="lang-current" id="langCurrent">Traditional English</span>
                 <svg class="lang-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <div class="lang-menu" id="langMenu" role="listbox"></div>
@@ -120,7 +123,8 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
-<script src="script.js?v=b97fed3487"></script>
+<script src="https://cdn.jsdelivr.net/npm/@twemoji/api@15.1.0/dist/twemoji.min.js" crossorigin="anonymous"></script>
+<script src="script.js?v=a3eff1905b"></script>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
