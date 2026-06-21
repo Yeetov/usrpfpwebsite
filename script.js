@@ -140,6 +140,141 @@ function buildSkeletonCard() {
     </div>`;
 }
 
+// --- LANGUAGE PICKER (custom UI driving Google Translate) ---
+// "code" values match the targets Google Translate's widget understands.
+
+const LANGS = [
+    { code: 'en',    native: 'Traditional English', sub: 'English (UK)' },
+    { code: 'af',    native: 'Afrikaans',   sub: 'Afrikaans' },
+    { code: 'ar',    native: 'العربية',      sub: 'Arabic', rtl: true },
+    { code: 'bn',    native: 'বাংলা',         sub: 'Bengali' },
+    { code: 'bg',    native: 'Български',    sub: 'Bulgarian' },
+    { code: 'zh-CN', native: '简体中文',      sub: 'Chinese (Simplified)' },
+    { code: 'zh-TW', native: '繁體中文',      sub: 'Chinese (Traditional)' },
+    { code: 'hr',    native: 'Hrvatski',    sub: 'Croatian' },
+    { code: 'cs',    native: 'Čeština',     sub: 'Czech' },
+    { code: 'da',    native: 'Dansk',       sub: 'Danish' },
+    { code: 'nl',    native: 'Nederlands',  sub: 'Dutch' },
+    { code: 'tl',    native: 'Filipino',    sub: 'Filipino' },
+    { code: 'fi',    native: 'Suomi',       sub: 'Finnish' },
+    { code: 'fr',    native: 'Français',    sub: 'French' },
+    { code: 'de',    native: 'Deutsch',     sub: 'German' },
+    { code: 'el',    native: 'Ελληνικά',    sub: 'Greek' },
+    { code: 'gu',    native: 'ગુજરાતી',       sub: 'Gujarati' },
+    { code: 'iw',    native: 'עברית',        sub: 'Hebrew', rtl: true },
+    { code: 'hi',    native: 'हिन्दी',         sub: 'Hindi' },
+    { code: 'hu',    native: 'Magyar',      sub: 'Hungarian' },
+    { code: 'id',    native: 'Bahasa Indonesia', sub: 'Indonesian' },
+    { code: 'it',    native: 'Italiano',    sub: 'Italian' },
+    { code: 'ja',    native: '日本語',        sub: 'Japanese' },
+    { code: 'kn',    native: 'ಕನ್ನಡ',         sub: 'Kannada' },
+    { code: 'ko',    native: '한국어',        sub: 'Korean' },
+    { code: 'ms',    native: 'Bahasa Melayu', sub: 'Malay' },
+    { code: 'ml',    native: 'മലയാളം',       sub: 'Malayalam' },
+    { code: 'mr',    native: 'मराठी',         sub: 'Marathi' },
+    { code: 'no',    native: 'Norsk',       sub: 'Norwegian' },
+    { code: 'fa',    native: 'فارسی',        sub: 'Persian', rtl: true },
+    { code: 'pl',    native: 'Polski',      sub: 'Polish' },
+    { code: 'pt',    native: 'Português',   sub: 'Portuguese' },
+    { code: 'pa',    native: 'ਪੰਜਾਬੀ',        sub: 'Punjabi' },
+    { code: 'ro',    native: 'Română',      sub: 'Romanian' },
+    { code: 'ru',    native: 'Русский',     sub: 'Russian' },
+    { code: 'sr',    native: 'Српски',      sub: 'Serbian' },
+    { code: 'sk',    native: 'Slovenčina',  sub: 'Slovak' },
+    { code: 'sl',    native: 'Slovenščina', sub: 'Slovenian' },
+    { code: 'es',    native: 'Español',     sub: 'Spanish' },
+    { code: 'sw',    native: 'Kiswahili',   sub: 'Swahili' },
+    { code: 'sv',    native: 'Svenska',     sub: 'Swedish' },
+    { code: 'ta',    native: 'தமிழ்',         sub: 'Tamil' },
+    { code: 'te',    native: 'తెలుగు',         sub: 'Telugu' },
+    { code: 'th',    native: 'ไทย',          sub: 'Thai' },
+    { code: 'tr',    native: 'Türkçe',      sub: 'Turkish' },
+    { code: 'uk',    native: 'Українська',  sub: 'Ukrainian' },
+    { code: 'ur',    native: 'اردو',         sub: 'Urdu', rtl: true },
+    { code: 'vi',    native: 'Tiếng Việt',  sub: 'Vietnamese' }
+];
+
+function getCurrentLang() {
+    try { const s = localStorage.getItem('siteLang'); if (s) return s; } catch (e) {}
+    const m = document.cookie.match(/googtrans=\/[^/]+\/([^;]+)/);
+    return m ? decodeURIComponent(m[1]) : 'en';
+}
+
+function langLabel(code) {
+    const l = LANGS.find(x => x.code === code);
+    return l ? l.native : 'Traditional English';
+}
+
+const LANG_CHECK = '<svg class="lang-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
+function buildLangMenu() {
+    const menu = document.getElementById('langMenu');
+    if (!menu) return;
+    const current = getCurrentLang();
+    const options = LANGS.map(l => {
+        const active = l.code === current ? ' active' : '';
+        const dir = l.rtl ? ' dir="rtl"' : '';
+        const search = (l.native + ' ' + l.sub + ' ' + l.code).toLowerCase();
+        return `<button class="lang-option${active}" role="option" data-code="${l.code}" data-search="${search}" onclick="selectLang('${l.code}')">
+            <span${dir}><span class="lang-native">${l.native}</span> <span class="lang-sub">${l.sub}</span></span>${LANG_CHECK}
+        </button>`;
+    }).join('');
+    menu.innerHTML = `<input type="text" class="lang-search" id="langSearch" placeholder="Search language…" autocomplete="off" oninput="filterLangs(this.value)" onclick="event.stopPropagation()">
+        <div id="langOptions">${options}</div>`;
+    const cur = document.getElementById('langCurrent');
+    if (cur) cur.textContent = langLabel(current);
+}
+
+function filterLangs(q) {
+    q = (q || '').trim().toLowerCase();
+    const opts = document.querySelectorAll('#langOptions .lang-option');
+    let shown = 0;
+    opts.forEach(o => {
+        const match = !q || o.dataset.search.indexOf(q) !== -1;
+        o.style.display = match ? '' : 'none';
+        if (match) shown++;
+    });
+    let empty = document.getElementById('langEmpty');
+    if (shown === 0 && !empty) {
+        empty = document.createElement('div');
+        empty.id = 'langEmpty';
+        empty.className = 'lang-empty';
+        empty.textContent = 'No languages found';
+        document.getElementById('langOptions').appendChild(empty);
+    } else if (shown > 0 && empty) {
+        empty.remove();
+    }
+}
+
+function toggleLangMenu(e) {
+    if (e) e.stopPropagation();
+    const picker = document.getElementById('langPicker');
+    if (!picker) return;
+    const open = picker.classList.toggle('open');
+    document.getElementById('langBtn').setAttribute('aria-expanded', open);
+    if (open) {
+        const s = document.getElementById('langSearch');
+        if (s) { s.value = ''; filterLangs(''); setTimeout(() => s.focus(), 50); }
+    }
+}
+
+function closeLangMenu() {
+    const picker = document.getElementById('langPicker');
+    if (picker && picker.classList.contains('open')) {
+        picker.classList.remove('open');
+        document.getElementById('langBtn')?.setAttribute('aria-expanded', 'false');
+    }
+}
+
+function selectLang(code) {
+    if (code === getCurrentLang()) { closeLangMenu(); return; }
+    try { localStorage.setItem('siteLang', code); } catch (e) {}
+    const val = code === 'en' ? '/en/en' : '/en/' + code;
+    document.cookie = 'googtrans=' + val + ';path=/';
+    document.cookie = 'googtrans=' + val + ';path=/;domain=.' + location.hostname;
+    location.reload();
+}
+
 // --- INIT ---
 
 function init() {
@@ -152,6 +287,7 @@ function init() {
             const dd = document.getElementById('clientDropdown');
             if (dd?.classList.contains('show')) dd.classList.remove('show');
             if (mobileOpen) closeMobileMenu();
+            closeLangMenu();
         }
     });
     window.addEventListener('click', e => {
@@ -160,12 +296,16 @@ function init() {
         const menu = document.getElementById('mobileMenu');
         const burger = document.getElementById('hamburger');
         if (mobileOpen && menu && burger && !menu.contains(e.target) && !burger.contains(e.target)) closeMobileMenu();
+        const lp = document.getElementById('langPicker');
+        if (lp && !lp.contains(e.target)) closeLangMenu();
     });
     window.addEventListener('scroll', () => {
         document.getElementById('backToTop')?.classList.toggle('visible', window.scrollY > 400);
     }, { passive: true });
     const modal = document.getElementById('infoModal');
     if (modal) modal.addEventListener('click', e => { if (e.target.id === 'infoModal') closeModal(); });
+
+    buildLangMenu();
 
     const obs = new IntersectionObserver(entries => {
         entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });

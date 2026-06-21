@@ -17,20 +17,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=0f1eea32db" />
+    <link rel="stylesheet" href="style.css?v=666ec9e68f" />
     <link id="favicon" rel="icon" href="/src/images/favicon.svg">
 
     <!-- Auto-detect visitor language, then Google Translate handles every language -->
     <script>
         (function () {
-            if (!/(?:^|;\s*)googtrans=/.test(document.cookie)) {
-                var lang = (navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
-                if (lang && lang !== 'en') {
-                    var val = '/en/' + lang;
-                    document.cookie = 'googtrans=' + val + ';path=/';
-                    document.cookie = 'googtrans=' + val + ';path=/;domain=.' + location.hostname;
-                }
+            function setCk(v) {
+                document.cookie = 'googtrans=' + v + ';path=/';
+                document.cookie = 'googtrans=' + v + ';path=/;domain=.' + location.hostname;
             }
+            if (/(?:^|;\s*)googtrans=/.test(document.cookie)) return;
+            var chosen = null;
+            try { chosen = localStorage.getItem('siteLang'); } catch (e) {}
+            var lang = chosen || (navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
+            if (lang && lang !== 'en') setCk('/en/' + lang);
+            else if (chosen === 'en') setCk('/en/en');
         })();
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({
@@ -63,7 +65,15 @@
             <a href="https://github.com/UserPFP/UserPFP" target="_blank" class="nav-link">GitHub</a>
             <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="nav-link">Discord</a>
         </div>
-        <div id="google_translate_element" class="lang-switch notranslate" translate="no"></div>
+        <div class="lang-picker notranslate" id="langPicker" translate="no">
+            <button class="lang-btn" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="toggleLangMenu(event)">
+                <svg class="lang-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span class="lang-current" id="langCurrent">English</span>
+                <svg class="lang-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="lang-menu" id="langMenu" role="listbox"></div>
+        </div>
+        <div id="google_translate_element" translate="no"></div>
         <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
             <span></span><span></span><span></span>
         </button>
@@ -110,7 +120,7 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
-<script src="script.js?v=546e30e32f"></script>
+<script src="script.js?v=b97fed3487"></script>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
