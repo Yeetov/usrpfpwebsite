@@ -58,7 +58,7 @@ const modData = {
         title: "Suncord",
         deprecated: true,
         deprecatedMsg: "Suncord is no longer maintained and has been superseded by Equicord. We recommend switching to Equicord.",
-        desc: "Suncord includes UserPFP as a built-in plugin (same as Equicord). Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it. However, Suncord is no longer maintained — switch to Equicord."
+        desc: "Suncord includes UserPFP as a built-in plugin (same as Equicord). Go to <b>Settings &rarr; Plugins</b>, search for <b>UserPFP</b>, and enable it. However, Suncord is no longer maintained, so switch to Equicord."
     },
     velocity: {
         logo: "https://raw.githubusercontent.com/Equicord/Equibored/main/images/clientMods/velocity/logo.png",
@@ -95,8 +95,7 @@ const staffIds = [
     "406084422308331522","789872551731527690","853550207039832084",
     "848339671629299742","500212086765518858","250322741406859265",
     "929208515883569182","258731845267619840","1180778779682033715",
-    "1124647765075566662","613725399263739926","422319200095436800",
-    "860592509184114723"
+    "1124647765075566662","613725399263739926","422319200095436800"
 ];
 
 const manualBanners = {
@@ -318,7 +317,7 @@ async function initDemoCard() {
         let withPfp = false;
 
         const runTransition = () => {
-            // ── Phase 1: Charge (520ms) — ring builds, image dims to white ──
+            // Phase 1: Charge (520ms), ring builds, image dims to white
             avatarEl?.classList.add('upgrade-charge-ring');
             imgEl?.classList.add('upgrade-dim-flash');
 
@@ -598,7 +597,7 @@ function openModal(title, data) {
                         COPY
                     </button>
                 </div>
-                <div class="code-content">${escapedCode}</div>
+                <div class="code-content notranslate" translate="no">${escapedCode}</div>
             </div>`
         });
     } else if (data.link) {

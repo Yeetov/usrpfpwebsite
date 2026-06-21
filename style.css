@@ -503,3 +503,37 @@ p { color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin: 0; }
     .pfp-track { animation:none; }
     .demo-float { animation:none; }
 }
+
+/* LANGUAGE SWITCHER (Google Translate) */
+/* Kill Google's injected top banner and the body offset it forces */
+.goog-te-banner-frame, .goog-te-gadget-icon, #goog-gt-tt, .goog-tooltip { display:none !important; }
+body { top:0 !important; position:static !important; }
+
+.lang-switch { display:inline-flex; align-items:center; }
+.lang-switch .goog-te-gadget {
+    font-size:0; line-height:0; color:transparent;
+    font-family:var(--font-primary);
+}
+.lang-switch .goog-te-gadget-simple {
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--modifier-hover);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:var(--radius-md);
+    padding:7px 11px; margin:0; cursor:pointer;
+    transition:border-color .18s ease, background .18s ease;
+}
+.lang-switch .goog-te-gadget-simple:hover {
+    border-color:var(--brand); background:var(--brand-dim);
+}
+.lang-switch .goog-te-gadget-simple .goog-te-menu-value {
+    color:var(--text-normal); font-size:0.82rem; font-weight:600; margin:0;
+}
+.lang-switch .goog-te-gadget-simple .goog-te-menu-value span { border:none !important; color:inherit !important; }
+/* Hide the trailing dropdown arrow glyphs Google adds, keep one caret */
+.lang-switch .goog-te-gadget-simple .goog-te-menu-value span:nth-child(3),
+.lang-switch .goog-te-gadget-simple .goog-te-menu-value span:nth-child(5) { display:none; }
+.lang-switch img { display:none; }
+
+@media (max-width:768px) {
+    .lang-switch { margin-right:8px; }
+}

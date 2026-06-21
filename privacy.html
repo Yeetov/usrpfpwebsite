@@ -7,15 +7,36 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <meta name="theme-color" content="#22c55e">
-    <meta name="description" content="UserPFP Privacy Policy — how we handle your data.">
+    <meta name="description" content="UserPFP Privacy Policy. How we handle your data.">
     <meta name="robots" content="noindex">
     <title>UserPFP | Privacy Policy</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=ead3772761" />
+    <link rel="stylesheet" href="style.css?v=0f1eea32db" />
     <link id="favicon" rel="icon" href="/src/images/favicon.svg">
+
+    <!-- Auto-detect visitor language, then Google Translate handles every language -->
+    <script>
+        (function () {
+            if (!/(?:^|;\s*)googtrans=/.test(document.cookie)) {
+                var lang = (navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
+                if (lang && lang !== 'en') {
+                    var val = '/en/' + lang;
+                    document.cookie = 'googtrans=' + val + ';path=/';
+                    document.cookie = 'googtrans=' + val + ';path=/;domain=.' + location.hostname;
+                }
+            }
+        })();
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                autoDisplay: false,
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
 </head>
 <body>
 
@@ -29,13 +50,14 @@
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
     <div class="nav-inner">
-        <a href="index.html" class="nav-brand"><img src="/src/images/favicon.svg" class="nav-favicon" alt=""><span class="brand-text"><span>User</span>PFP</span></a>
+        <a href="index.html" class="nav-brand"><img src="/src/images/favicon.svg" class="nav-favicon" alt=""><span class="brand-text notranslate" translate="no"><span>User</span>PFP</span></a>
         <div class="nav-links" id="navLinks">
             <a href="index.html" class="nav-link">Home</a>
             <a href="staff.html" class="nav-link">Staff</a>
             <a href="https://github.com/UserPFP/UserPFP" target="_blank" class="nav-link">GitHub</a>
             <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="nav-link">Discord</a>
         </div>
+        <div id="google_translate_element" class="lang-switch notranslate" translate="no"></div>
         <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
             <span></span><span></span><span></span>
         </button>
@@ -72,7 +94,7 @@
         <ul>
             <li>Names, email addresses, or contact information</li>
             <li>IP addresses (there is no server-side application logging)</li>
-            <li>Cookies set by this website</li>
+            <li>Tracking or advertising cookies (the only cookie we set stores your language choice, see Section 5)</li>
             <li>Analytics or usage data</li>
             <li>Device or browser fingerprints</li>
             <li>Payment information</li>
@@ -105,17 +127,20 @@
 
         <h3>GitHub</h3>
         <p>Static data files are loaded from <code style="font-family:var(--font-code);font-size:0.875em;">raw.githubusercontent.com</code>. See <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub's Privacy Statement</a>.</p>
+
+        <h3>Google Translate</h3>
+        <p>To make the site readable in any language, we use the Google Translate widget (<code style="font-family:var(--font-code);font-size:0.875em;">translate.google.com</code>). It loads only if you change the language or if your browser's language is not English. When it loads, Google may process your IP address and the page content being translated. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.</p>
     </div>
 
     <div class="legal-section">
         <h2>4. Staff Page &amp; Discord Data</h2>
         <p>The Staff page displays publicly accessible Discord data for UserPFP team members, including display names, usernames, avatars, and online/activity status. This data is sourced from public APIs that the respective individuals have explicitly opted into.</p>
-        <p style="margin-top:0.75rem;">The legal basis for processing this data under GDPR is <strong>legitimate interest</strong> (Art. 6(1)(f)) — displaying publicly opted-in data about team members to inform visitors about the project contributors. Staff members may request removal of their data at any time (see Section 6).</p>
+        <p style="margin-top:0.75rem;">The legal basis for processing this data under GDPR is <strong>legitimate interest</strong> (Art. 6(1)(f)): displaying publicly opted-in data about team members to inform visitors about the project contributors. Staff members may request removal of their data at any time (see Section 6).</p>
     </div>
 
     <div class="legal-section">
         <h2>5. Cookies</h2>
-        <p>This website does not set any cookies. Third-party services (specifically Google Fonts) may set their own cookies in accordance with their respective policies. As of 2022, Google has confirmed that Google Fonts does not use cookies for tracking purposes.</p>
+        <p>This website sets a single <code style="font-family:var(--font-code);font-size:0.875em;">googtrans</code> cookie to remember your chosen language for the Google Translate feature. It contains only a language code and is not used for tracking. Third-party services (such as Google Fonts and Google Translate) may set their own cookies in accordance with their respective policies.</p>
         <p style="margin-top:0.75rem;">If you use a browser extension that blocks third-party requests, this site will still function correctly as the fonts will fall back to system fonts.</p>
     </div>
 
@@ -123,7 +148,7 @@
         <h2>6. Your Rights</h2>
         <p>Depending on your jurisdiction, you may have rights regarding personal data. Since we collect no visitor data, these rights primarily apply to staff members whose public Discord data is displayed.</p>
 
-        <h3>EU / EEA Residents (GDPR — Regulation (EU) 2016/679)</h3>
+        <h3>EU / EEA Residents (GDPR, Regulation (EU) 2016/679)</h3>
         <ul>
             <li>Right of access (Art. 15)</li>
             <li>Right to rectification (Art. 16)</li>
@@ -151,7 +176,7 @@
         <h3>Australia (Privacy Act 1988)</h3>
         <p>You have the right to access and correct personal information held about you under the Australian Privacy Principles.</p>
 
-        <h3>Brazil (LGPD — Lei Geral de Prote&ccedil;&atilde;o de Dados)</h3>
+        <h3>Brazil (LGPD, Lei Geral de Prote&ccedil;&atilde;o de Dados)</h3>
         <p>You have rights to confirmation, access, correction, anonymisation, deletion, and portability of your data under the LGPD.</p>
 
         <h3>South Korea (PIPA)</h3>
@@ -180,7 +205,7 @@
 
     <div class="legal-section">
         <h2>11. Contact &amp; Data Requests</h2>
-        <p>For any privacy-related requests — including requests by staff members to have their data removed from the Staff page — please contact us through:</p>
+        <p>For any privacy-related requests, including requests by staff members to have their data removed from the Staff page, please contact us through:</p>
         <ul>
             <li><strong>Discord Server:</strong> <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" rel="noopener">discord.gg/userpfp-1129784704267210844</a></li>
             <li><strong>GitHub Issues:</strong> <a href="https://github.com/Yeetov/usrpfpwebsite/issues" target="_blank" rel="noopener">github.com/Yeetov/usrpfpwebsite/issues</a></li>
@@ -194,7 +219,7 @@
 <!-- FOOTER -->
 <footer class="footer">
     <div class="footer-inner">
-        <div class="footer-brand"><span>User</span>PFP</div>
+        <div class="footer-brand notranslate" translate="no"><span>User</span>PFP</div>
         <div class="footer-links">
             <a href="https://github.com/Yeetov/usrpfpwebsite" target="_blank">Website Source</a>
             <a href="https://github.com/UserPFP/UserPFP" target="_blank">Plugin GitHub</a>
@@ -202,7 +227,7 @@
             <a href="staff.html">Staff</a>
             <a href="privacy.html">Privacy Policy</a>
         </div>
-        <div class="footer-copy">&copy; 2023-2026 UserPFP &mdash; Not affiliated with Discord Inc.</div>
+        <div class="footer-copy">&copy; 2023-2026 UserPFP. Not affiliated with Discord Inc.</div>
     </div>
 </footer>
 
@@ -210,6 +235,7 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
-<script src="script.js?v=0acbe533d2"></script>
+<script src="script.js?v=546e30e32f"></script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

@@ -7,9 +7,9 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <meta name="theme-color" content="#22c55e">
-    <meta name="description" content="Meet the UserPFP team — the developers and contributors making animated profiles possible.">
+    <meta name="description" content="Meet the UserPFP team, the developers and contributors who make animated profiles possible.">
     <meta property="og:title" content="UserPFP | Staff">
-    <meta property="og:description" content="Meet the UserPFP team — the developers and contributors making animated profiles possible.">
+    <meta property="og:description" content="Meet the UserPFP team, the developers and contributors who make animated profiles possible.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <title>UserPFP | Staff</title>
@@ -17,8 +17,29 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=ead3772761" />
+    <link rel="stylesheet" href="style.css?v=0f1eea32db" />
     <link id="favicon" rel="icon" href="/src/images/favicon.svg">
+
+    <!-- Auto-detect visitor language, then Google Translate handles every language -->
+    <script>
+        (function () {
+            if (!/(?:^|;\s*)googtrans=/.test(document.cookie)) {
+                var lang = (navigator.language || navigator.userLanguage || 'en').slice(0, 2).toLowerCase();
+                if (lang && lang !== 'en') {
+                    var val = '/en/' + lang;
+                    document.cookie = 'googtrans=' + val + ';path=/';
+                    document.cookie = 'googtrans=' + val + ';path=/;domain=.' + location.hostname;
+                }
+            }
+        })();
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                autoDisplay: false,
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+            }, 'google_translate_element');
+        }
+    </script>
 </head>
 <body>
 
@@ -35,13 +56,14 @@
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
     <div class="nav-inner">
-        <a href="index.html" class="nav-brand"><img src="/src/images/favicon.svg" class="nav-favicon" alt=""><span class="brand-text"><span>User</span>PFP</span></a>
+        <a href="index.html" class="nav-brand"><img src="/src/images/favicon.svg" class="nav-favicon" alt=""><span class="brand-text notranslate" translate="no"><span>User</span>PFP</span></a>
         <div class="nav-links" id="navLinks">
             <a href="index.html" class="nav-link">Home</a>
             <a href="staff.html" class="nav-link active">Staff</a>
             <a href="https://github.com/UserPFP/UserPFP" target="_blank" class="nav-link">GitHub</a>
             <a href="https://discord.gg/userpfp-1129784704267210844" target="_blank" class="nav-link">Discord</a>
         </div>
+        <div id="google_translate_element" class="lang-switch notranslate" translate="no"></div>
         <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
             <span></span><span></span><span></span>
         </button>
@@ -72,7 +94,7 @@
 <!-- FOOTER -->
 <footer class="footer">
     <div class="footer-inner">
-        <div class="footer-brand"><span>User</span>PFP</div>
+        <div class="footer-brand notranslate" translate="no"><span>User</span>PFP</div>
         <div class="footer-links">
             <a href="https://github.com/Yeetov/usrpfpwebsite" target="_blank">Website Source</a>
             <a href="https://github.com/UserPFP/UserPFP" target="_blank">Plugin GitHub</a>
@@ -80,7 +102,7 @@
             <a href="staff.html">Staff</a>
             <a href="privacy.html">Privacy Policy</a>
         </div>
-        <div class="footer-copy">&copy; 2023-2026 UserPFP &mdash; Not affiliated with Discord Inc.</div>
+        <div class="footer-copy">&copy; 2023-2026 UserPFP. Not affiliated with Discord Inc.</div>
     </div>
 </footer>
 
@@ -88,6 +110,7 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
 </button>
 
-<script src="script.js?v=0acbe533d2"></script>
+<script src="script.js?v=546e30e32f"></script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
