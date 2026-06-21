@@ -143,8 +143,8 @@ function buildSkeletonCard() {
 // --- LANGUAGE PICKER (custom UI driving Google Translate) ---
 // "code" values match the targets Google Translate's widget understands.
 
-// Every language Google Translate supports, plus locale variants that map to the
-// same engine target (g) so people see their own flag even if the text is identical.
+// A short list of common languages, plus the US/UK English and Simplified/Traditional
+// Chinese variants. "g" is the Google Translate engine target a variant maps to.
 const LANGS = [
     // English variants (all translate to the original English text)
     { code: 'en-GB', g: 'en', flag: '🇬🇧', native: 'Traditional English', sub: 'English (UK)' },
@@ -328,40 +328,17 @@ function buildLangMenu() {
     const options = LANGS.map(l => {
         const active = l.code === current ? ' active' : '';
         const dir = l.rtl ? ' dir="rtl"' : '';
-        const search = (l.native + ' ' + l.sub + ' ' + l.code).toLowerCase();
-        return `<button class="lang-option${active}" role="option" data-code="${l.code}" data-search="${search}" onclick="selectLang('${l.code}')">
+        return `<button class="lang-option${active}" role="option" data-code="${l.code}" onclick="selectLang('${l.code}')">
             <span class="lang-flag" aria-hidden="true">${l.flag}</span>
             <span class="lang-text"${dir}><span class="lang-native">${l.native}</span> <span class="lang-sub">${l.sub}</span></span>${LANG_CHECK}
         </button>`;
     }).join('');
-    menu.innerHTML = `<input type="text" class="lang-search" id="langSearch" placeholder="Search language…" autocomplete="off" oninput="filterLangs(this.value)" onclick="event.stopPropagation()">
-        <div id="langOptions">${options}</div>`;
+    menu.innerHTML = `<div id="langOptions">${options}</div>`;
     const curLang = LANGS.find(l => l.code === current) || LANGS[0];
     const cur = document.getElementById('langCurrent');
     if (cur) cur.textContent = curLang.native;
     const flag = document.getElementById('langFlag');
     if (flag) { flag.textContent = curLang.flag; parseTwemoji(flag); }
-}
-
-function filterLangs(q) {
-    q = (q || '').trim().toLowerCase();
-    const opts = document.querySelectorAll('#langOptions .lang-option');
-    let shown = 0;
-    opts.forEach(o => {
-        const match = !q || o.dataset.search.indexOf(q) !== -1;
-        o.style.display = match ? '' : 'none';
-        if (match) shown++;
-    });
-    let empty = document.getElementById('langEmpty');
-    if (shown === 0 && !empty) {
-        empty = document.createElement('div');
-        empty.id = 'langEmpty';
-        empty.className = 'lang-empty';
-        empty.textContent = 'No languages found';
-        document.getElementById('langOptions').appendChild(empty);
-    } else if (shown > 0 && empty) {
-        empty.remove();
-    }
 }
 
 function toggleLangMenu(e) {
@@ -373,8 +350,6 @@ function toggleLangMenu(e) {
     if (open) {
         const menu = document.getElementById('langMenu');
         if (menu && !menu.dataset.twemoji) { parseTwemoji(menu); menu.dataset.twemoji = '1'; }
-        const s = document.getElementById('langSearch');
-        if (s) { s.value = ''; filterLangs(''); setTimeout(() => s.focus(), 50); }
     }
 }
 

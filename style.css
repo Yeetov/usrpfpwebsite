@@ -514,13 +514,13 @@ body { top:0 !important; position:static !important; }
 .lang-picker { position:relative; display:inline-flex; }
 
 .lang-btn {
-    display:inline-flex; align-items:center; gap:8px;
-    height:38px; padding:0 12px;
+    display:inline-flex; align-items:center; gap:6px;
+    height:32px; padding:0 9px;
     background:var(--modifier-hover);
     border:1px solid rgba(255,255,255,0.08);
     border-radius:var(--radius-md);
     color:var(--text-normal);
-    font-family:var(--font-primary); font-size:0.85rem; font-weight:600;
+    font-family:var(--font-primary); font-size:0.78rem; font-weight:600;
     cursor:pointer;
     transition:border-color .18s ease, background .18s ease, color .18s ease;
 }
@@ -529,11 +529,11 @@ body { top:0 !important; position:static !important; }
 .lang-btn .lang-caret { width:13px; height:13px; flex:none; opacity:.6; transition:transform .2s ease; }
 .lang-picker.open .lang-btn { border-color:var(--brand); background:var(--brand-dim); color:var(--text-header); }
 .lang-picker.open .lang-btn .lang-caret { transform:rotate(180deg); }
-.lang-btn .lang-current { max-width:170px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lang-btn .lang-current { max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 .lang-menu {
     position:absolute; top:calc(100% + 8px); right:0;
-    width:240px; max-height:340px; overflow-y:auto;
+    width:218px; max-height:340px; overflow-y:auto;
     background:var(--bg-floating);
     border:1px solid rgba(255,255,255,0.09);
     border-radius:var(--radius-lg);
